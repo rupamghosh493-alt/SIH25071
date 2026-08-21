@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MineSafety_AI</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='chatbot/chatbot.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="chatbot-container">
+
+    <header class="chat-header">
+
+        <div class="ai-logo">
+            AI
+        </div>
+
+        <div class="ai-info">
+            <h1>MineSafety_AI</h1>
+            <p>
+                Gemini-powered AI Assistant
+            </p>
+        </div>
+
+        <div class="online-status">
+            <span></span>
+            Online
+        </div>
+
+    </header>
+
+
+    <main
+        class="chat-messages"
+        id="chatMessages"
+    >
+
+        <div class="message ai-message">
+
+            <div class="avatar">
+                AI
+            </div>
+
+            <div class="message-content">
+                <div class="message-name">
+                    MineSafety_AI
+                </div>
+
+                <div class="message-bubble">
+                    Hello! I'm <strong>MineSafety_AI</strong>.
+                    <br><br>
+                    You can ask me anything — mine safety,
+                    rockfall risk, sensors, engineering,
+                    programming, science, general knowledge,
+                    or completely unrelated topics.
+                    <br><br>
+                    How can I help you?
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <div class="typing" id="typing">
+        <span></span>
+        <span></span>
+        <span></span>
+        MineSafety_AI is thinking...
+    </div>
+
+
+    <form
+        class="chat-input-area"
+        id="chatForm"
+    >
+
+        <textarea
+            id="messageInput"
+            placeholder="Ask MineSafety_AI anything..."
+            rows="1"
+            autocomplete="off"
+        ></textarea>
+
+        <button
+            type="submit"
+            id="sendButton"
+        >
+            Send
+        </button>
+
+    </form>
+
+
+    <div class="chat-footer">
+        Powered by Google Gemini
+    </div>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='chatbot/chatbot.js') }}"></script>
+
+</body>
+</html>

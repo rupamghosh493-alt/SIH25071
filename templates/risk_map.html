@@ -1,0 +1,371 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Risk Map{% endblock %}
+{% block heading %}Risk Map{% endblock %}
+
+{% block content %}
+
+<div class="rm-final">
+
+    <div class="rm-header">
+        <div>
+            <span class="rm-kicker">SPATIAL SAFETY VIEW</span>
+            <h1>Risk Map</h1>
+            <p>
+                Live zone-level risk overview
+                {% if selected_mine %}
+                · {{ selected_mine.name }}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="rm-live">
+            <span></span> LIVE
+        </div>
+    </div>
+
+
+    <div class="rm-layout">
+
+        <section class="rm-map-card">
+
+            <div class="rm-toolbar">
+                <button class="rm-view active" data-view="2d">2D</button>
+                <button class="rm-view" data-view="3d">3D</button>
+                <button class="rm-view" data-view="satellite">Satellite</button>
+                <button class="rm-view" data-view="drone">Drone</button>
+            </div>
+
+            <div class="rm-map" id="riskMap">
+
+                <div class="rm-grid"></div>
+
+                <div class="rm-elevation">
+                    ELEVATION<br>
+                    <b>1063m — 1215m</b>
+                </div>
+
+                {% set positions=[
+                    (22,27),(50,22),(76,30),
+                    (30,63),(58,57),(79,67),
+                    (45,78),(18,75)
+                ] %}
+
+                {% for z in zones %}
+
+                <button
+                    type="button"
+                    class="rm-zone {{ z.risk_level|lower }}"
+                    style="
+                        left:{{ positions[loop.index0 % positions|length][0] }}%;
+                        top:{{ positions[loop.index0 % positions|length][1] }}%;
+                    "
+                    data-zone="{{ z.zone|e }}"
+                    data-score="{{ z.risk_score|round(1) }}"
+                    data-level="{{ z.risk_level|e }}"
+                    data-fs="{{ z.factor_of_safety|default(z.fs, true)|round(3) }}"
+                    data-displacement="{{ z.displacement_mm|round(2) }}"
+                    data-reinforcement="{{ z.reinforcement|round(3) }}"
+                    data-rainfall="{{ z.rainfall_mm|round(2) }}"
+                    data-slope="{{ z.slope_angle|round(1) }}"
+                    onclick="openRiskDetails(this)"
+                    title="Click to view {{ z.zone }} risk details">
+
+                    <span class="rm-pulse"></span>
+                    <b>{{ z.zone.split(' ')[0] }}</b>
+                    <small>{{ z.risk_score|round(0) }}%</small>
+
+                </button>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="rm-hint">
+                Click any risk zone to inspect its complete safety data.
+            </div>
+
+        </section>
+
+
+        <aside class="rm-side">
+
+            <div class="rm-summary">
+                <span>MONITORED ZONES</span>
+                <strong>{{ zones|list|length }}</strong>
+            </div>
+
+
+            <div class="rm-zone-list">
+
+                {% for z in zones %}
+
+                <button
+                    type="button"
+                    class="rm-zone-row"
+                    onclick="openRiskDetailsById('{{ loop.index0 }}')">
+
+                    <span class="rm-dot {{ z.risk_level|lower }}"></span>
+
+                    <div>
+                        <b>{{ z.zone }}</b>
+                        <small>
+                            FS {{ z.factor_of_safety|default(z.fs,true)|round(2) }}
+                            · {{ z.displacement_mm|round(2) }} mm
+                        </small>
+                    </div>
+
+                    <strong>
+                        {{ z.risk_score|round(0) }}%
+                    </strong>
+
+                </button>
+
+                {% endfor %}
+
+            </div>
+
+        </aside>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     RISK DETAIL POPUP
+     ===================================================== -->
+
+<div
+    class="risk-modal"
+    id="riskModal"
+    aria-hidden="true">
+
+    <div
+        class="risk-modal-backdrop"
+        onclick="closeRiskDetails()">
+    </div>
+
+    <div class="risk-modal-card">
+
+        <button
+            type="button"
+            class="risk-close"
+            onclick="closeRiskDetails()">
+            ×
+        </button>
+
+        <span class="risk-modal-kicker">
+            ZONE RISK ANALYSIS
+        </span>
+
+        <div class="risk-modal-title">
+            <div>
+                <h2 id="detailZone">Risk Zone</h2>
+                <span id="detailLevel">RISK</span>
+            </div>
+
+            <div class="risk-big-score">
+                <strong id="detailScore">0%</strong>
+                <small>RISK SCORE</small>
+            </div>
+        </div>
+
+
+        <div class="risk-data-grid">
+
+            <div>
+                <span>FACTOR OF SAFETY</span>
+                <b id="detailFS">—</b>
+            </div>
+
+            <div>
+                <span>GROUND MOVEMENT</span>
+                <b id="detailDisplacement">—</b>
+            </div>
+
+            <div>
+                <span>REINFORCEMENT</span>
+                <b id="detailReinforcement">—</b>
+            </div>
+
+            <div>
+                <span>RAINFALL</span>
+                <b id="detailRainfall">—</b>
+            </div>
+
+            <div>
+                <span>SLOPE ANGLE</span>
+                <b id="detailSlope">—</b>
+            </div>
+
+            <div>
+                <span>MONITORING STATUS</span>
+                <b>LIVE</b>
+            </div>
+
+        </div>
+
+
+        <div class="risk-message">
+
+            <span>SAFETY ASSESSMENT</span>
+
+            <p id="detailMessage"></p>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="risk-close-main"
+            onclick="closeRiskDetails()">
+            CLOSE
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const riskZones =
+    Array.from(
+        document.querySelectorAll('.rm-zone')
+    );
+
+
+function safetyMessage(level,score,fs,disp){
+
+    if(level === 'Critical' || score >= 80){
+        return 'Critical ground-risk conditions detected. High risk score and/or significant movement requires immediate inspection of the affected zone and review by the site safety team.';
+    }
+
+    if(level === 'High' || score >= 60){
+        return 'Elevated slope-risk conditions detected. Ground movement and stability indicators should be monitored closely and the zone should receive priority inspection.';
+    }
+
+    if(level === 'Moderate' || score >= 35){
+        return 'Moderate risk conditions detected. Continue sensor monitoring and routine inspection, with attention to changes in ground movement and slope stability.';
+    }
+
+    return 'Current indicators are within the lower-risk range. Continue normal monitoring and respond if sensor readings or environmental conditions change.';
+}
+
+
+function openRiskDetails(el){
+
+    document.getElementById('detailZone').textContent =
+        el.dataset.zone || 'Risk Zone';
+
+    document.getElementById('detailScore').textContent =
+        (el.dataset.score || '0') + '%';
+
+    document.getElementById('detailLevel').textContent =
+        el.dataset.level || 'RISK';
+
+    document.getElementById('detailFS').textContent =
+        el.dataset.fs || '—';
+
+    document.getElementById('detailDisplacement').textContent =
+        (el.dataset.displacement || '—') + ' mm';
+
+    document.getElementById('detailReinforcement').textContent =
+        el.dataset.reinforcement || '—';
+
+    document.getElementById('detailRainfall').textContent =
+        (el.dataset.rainfall || '—') + ' mm';
+
+    document.getElementById('detailSlope').textContent =
+        (el.dataset.slope || '—') + '°';
+
+    const score =
+        parseFloat(el.dataset.score || 0);
+
+    const message =
+        safetyMessage(
+            el.dataset.level || '',
+            score,
+            el.dataset.fs || 0,
+            el.dataset.displacement || 0
+        );
+
+    document.getElementById('detailMessage').textContent =
+        message;
+
+    const modal =
+        document.getElementById('riskModal');
+
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+
+    document.body.classList.add('risk-modal-open');
+}
+
+
+function openRiskDetailsById(index){
+
+    if(riskZones[index]){
+        openRiskDetails(riskZones[index]);
+    }
+
+}
+
+
+function closeRiskDetails(){
+
+    const modal =
+        document.getElementById('riskModal');
+
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+
+    document.body.classList.remove('risk-modal-open');
+}
+
+
+document.addEventListener(
+    'keydown',
+    function(event){
+
+        if(event.key === 'Escape'){
+            closeRiskDetails();
+        }
+
+    }
+);
+
+
+/* View controls */
+
+document
+    .querySelectorAll('.rm-view')
+    .forEach(function(button){
+
+        button.addEventListener(
+            'click',
+            function(){
+
+                document
+                    .querySelectorAll('.rm-view')
+                    .forEach(
+                        b => b.classList.remove('active')
+                    );
+
+                this.classList.add('active');
+
+                const map =
+                    document.getElementById('riskMap');
+
+                map.dataset.view =
+                    this.dataset.view;
+
+            }
+        );
+
+    });
+
+</script>
+
+{% endblock %}

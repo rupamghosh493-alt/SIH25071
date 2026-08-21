@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Sensors{% endblock %}
+{% block heading %}Sensor Network{% endblock %}
+
+{% block content %}
+
+<div class="page-actions sensor-page-header">
+    <div>
+        <span class="section-kicker">LIVE IOT HEALTH</span>
+        <p>Connected geotechnical and environmental monitoring nodes.</p>
+    </div>
+
+    {% if current_role == 'admin' %}
+    <a class="small-btn primary" href="{{ url_for('upload') }}">⇧ Upload data</a>
+    {% endif %}
+</div>
+
+<div class="sensor-health-grid">
+
+    <div class="sensor-health green">
+        <span>●</span>
+        <strong>{{ sensors|selectattr('status','equalto','Online')|list|length }}</strong>
+        <small>Online sensors</small>
+    </div>
+
+    <div class="sensor-health amber">
+        <span>!</span>
+        <strong>{{ sensors|selectattr('status','equalto','Warning')|list|length }}</strong>
+        <small>Warning nodes</small>
+    </div>
+
+    <div class="sensor-health red">
+        <span>×</span>
+        <strong>{{ sensors|selectattr('status','equalto','Offline')|list|length }}</strong>
+        <small>Offline nodes</small>
+    </div>
+
+    <div class="sensor-health blue">
+        <span>⌁</span>
+        <strong>{{ sensors|length }}</strong>
+        <small>Total deployed</small>
+    </div>
+
+</div>
+
+
+<div class="sensor-grid">
+
+{% for s in sensors %}
+
+    <div class="sensor-card">
+
+        <div class="sensor-card-head">
+            <div class="sensor-icon">⌁</div>
+
+            <span class="status-chip {{ s.status|lower }}">
+                <span class="status-dot"></span>
+                {{ s.status }}
+            </span>
+        </div>
+
+        <div class="sensor-code">
+            {{ s.code }}
+        </div>
+
+        <div class="sensor-type">
+            {{ s.sensor_type }} Sensor
+        </div>
+
+        <div class="sensor-location">
+            <span>⌖</span>
+            {{ s.zone }}
+        </div>
+
+        <div class="sensor-footer">
+            <span>Real-time node</span>
+            <span class="sensor-pulse"></span>
+        </div>
+
+    </div>
+
+{% else %}
+
+    <div class="sensor-empty">
+        <strong>No sensors found</strong>
+        <span>No sensors are deployed for the selected mine.</span>
+    </div>
+
+{% endfor %}
+
+</div>
+
+
+<section class="panel table-panel sensor-telemetry">
+
+    <div class="panel-head">
+        <div>
+            <span class="section-kicker">RECENT TELEMETRY</span>
+            <h2>Latest readings</h2>
+        </div>
+
+        <span class="telemetry-live">
+            <span></span> LIVE
+        </span>
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table sensor-table">
+
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Zone</th>
+                    <th>FS</th>
+                    <th>Reinforcement</th>
+                    <th>Displacement</th>
+                    <th>Risk</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for r in readings %}
+
+                <tr>
+                    <td>
+                        {{ r.timestamp.strftime('%d %b %H:%M') }}
+                    </td>
+
+                    <td>
+                        <b>{{ r.zone }}</b>
+                    </td>
+
+                    <td>
+                        {{ '%.2f'|format(r.fs) }}
+                    </td>
+
+                    <td>
+                        {{ '%.2f'|format(r.reinforcement) }}
+                    </td>
+
+                    <td>
+                        {{ '%.1f'|format(r.displacement_mm) }} mm
+                    </td>
+
+                    <td>
+                        <span class="pill {{ r.risk_level|lower }}">
+                            {{ r.risk_level }}
+                        </span>
+                    </td>
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        No telemetry data available.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}

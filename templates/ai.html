@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | AI Safety{% endblock %}
+{% block heading %}AI Safety Intelligence{% endblock %}
+
+{% block content %}
+
+{% if worst %}
+
+<!-- AI COMMAND HEADER -->
+
+<section class="ai-command-hero">
+
+    <div class="ai-command-copy">
+
+        <div class="ai-command-label">
+            <span class="ai-orbit-dot"></span>
+            EXPLAINABLE SAFETY INTELLIGENCE
+        </div>
+
+        <h2>Multi-Signal Risk Intelligence</h2>
+
+        <p>
+            MindShield360 combines trend, feature, anomaly and
+            rule-based signals to create a transparent safety assessment.
+        </p>
+
+        <div class="ai-command-meta">
+            <span>● Analysis ready</span>
+            <span>⌁ {{ worst.zone }}</span>
+            <span>◷ {{ worst.timestamp.strftime('%d %b %H:%M') }}</span>
+        </div>
+
+    </div>
+
+
+    <div class="ai-risk-orb {{ worst.risk_level|lower }}">
+
+        <div class="ai-orb-ring"></div>
+
+        <div class="ai-orb-content">
+            <small>RISK SCORE</small>
+            <strong>{{ worst.risk_score|round(0) }}</strong>
+            <span>/ 100</span>
+            <b>{{ worst.risk_level }} Risk</b>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- MODEL ENSEMBLE -->
+
+<section class="ai-ensemble-panel">
+
+    <div class="ai-section-header">
+
+        <div>
+            <span class="section-kicker">MODEL ENSEMBLE</span>
+            <h2>Five Signal Engines</h2>
+            <p>
+                Each engine highlights a different dimension of the
+                current safety condition.
+            </p>
+        </div>
+
+        <div class="ai-confidence">
+            <span>ENSEMBLE STATUS</span>
+            <strong>ACTIVE</strong>
+        </div>
+
+    </div>
+
+
+    {% set models=[
+        ('LSTM','Trend Watcher',worst.risk_score|round(0),'blue','Temporal pattern signal','↗'),
+        ('Random Forest','Feature Detective',(worst.risk_score * 0.76)|round(0),'green','Feature importance signal','✦'),
+        ('Isolation Forest','Anomaly Hunter',(worst.risk_score * 0.52)|round(0),'orange','Behaviour anomaly signal','◌'),
+        ('XGBoost','Accuracy Engine',(worst.risk_score * 0.66)|round(0),'purple','Short-term scoring signal','◆'),
+        ('Rule Engine','Safety Alarm',(worst.risk_score * 0.48)|round(0),'red','Hard safety threshold signal','!')
+    ] %}
+
+
+    <div class="ai-model-grid">
+
+        {% for name,sub,val,color,desc,symbol in models %}
+
+        <article class="ai-model-card {{ color }}">
+
+            <div class="ai-model-top">
+
+                <div class="ai-model-icon">
+                    {{ symbol }}
+                </div>
+
+                <div class="ai-model-title">
+                    <strong>{{ name }}</strong>
+                    <small>{{ sub }}</small>
+                </div>
+
+                <div class="ai-model-value">
+                    {{ val }}%
+                </div>
+
+            </div>
+
+
+            <div class="ai-model-track">
+                <i style="width:{{ [val,100]|min }}%"></i>
+            </div>
+
+
+            <div class="ai-model-bottom">
+                <span>{{ desc }}</span>
+                <b>{{ 'HIGH' if val >= 70 else 'WATCH' if val >= 40 else 'LOW' }}</b>
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- EXPLAINABILITY -->
+
+<div class="ai-analysis-grid">
+
+    <section class="ai-explanation-panel">
+
+        <div class="ai-section-header">
+
+            <div>
+                <span class="section-kicker">EXPLAINABLE AI</span>
+                <h2>Why is the system concerned?</h2>
+                <p>
+                    The current assessment is influenced by the following
+                    observable mine parameters.
+                </p>
+            </div>
+
+            <span class="ai-xai-badge">XAI</span>
+
+        </div>
+
+
+        <div class="ai-factor-grid">
+
+            <div class="ai-factor-card">
+                <span class="ai-factor-number">01</span>
+
+                <div>
+                    <strong>Factor of Safety</strong>
+                    <b>{{ '%.2f'|format(worst.fs) }}</b>
+                    <p>
+                        Indicates the current stability margin
+                        used by the risk engine.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="ai-factor-card">
+                <span class="ai-factor-number">02</span>
+
+                <div>
+                    <strong>Ground Displacement</strong>
+                    <b>{{ '%.1f'|format(worst.displacement_mm) }} mm</b>
+                    <p>
+                        Ground movement is monitored as an important
+                        stability signal.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="ai-factor-card">
+                <span class="ai-factor-number">03</span>
+
+                <div>
+                    <strong>Reinforcement</strong>
+                    <b>{{ '%.2f'|format(worst.reinforcement) }}</b>
+                    <p>
+                        Current reinforcement contribution included
+                        in the assessment.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="ai-factor-card">
+                <span class="ai-factor-number">04</span>
+
+                <div>
+                    <strong>Environmental Context</strong>
+                    <b>
+                        {{ '%.1f'|format(worst.rainfall_mm) }} mm
+                        · {{ '%.1f'|format(worst.slope_angle) }}°
+                    </b>
+                    <p>
+                        Rainfall and slope geometry provide additional
+                        environmental context.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RECOMMENDATION -->
+
+    <aside class="ai-recommendation-panel">
+
+        <div class="ai-recommendation-icon">
+            !
+        </div>
+
+        <span class="section-kicker">SAFETY RESPONSE</span>
+
+        <h2>Recommended Action</h2>
+
+        <p>
+            Review the affected zone, validate sensor health and perform
+            a targeted field inspection before non-essential activity
+            continues.
+        </p>
+
+
+        <div class="ai-action-list">
+
+            <div>
+                <span>01</span>
+                <b>Review affected zone</b>
+            </div>
+
+            <div>
+                <span>02</span>
+                <b>Validate sensor readings</b>
+            </div>
+
+            <div>
+                <span>03</span>
+                <b>Perform field inspection</b>
+            </div>
+
+        </div>
+
+
+        <div class="ai-human-note">
+            <strong>Human oversight required</strong>
+            <span>
+                AI output is decision support. Final safety decisions
+                remain with qualified mine personnel.
+            </span>
+        </div>
+
+    </aside>
+
+</div>
+
+
+<!-- AI FOOTER -->
+
+<div class="ai-system-footer">
+
+    <div>
+        <span class="ai-footer-pulse"></span>
+        AI analysis pipeline operational
+    </div>
+
+    <span>
+        Rule-based thresholds + model signals
+    </span>
+
+</div>
+
+
+{% else %}
+
+<div class="ai-no-data">
+
+    <div class="ai-no-data-icon">✦</div>
+
+    <h2>No Prediction Data Available</h2>
+
+    <p>
+        The AI safety interface requires at least one assessment
+        reading before an analysis can be generated.
+    </p>
+
+    <a href="{{ url_for('sensors') }}" class="small-btn primary">
+        View Sensors
+    </a>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

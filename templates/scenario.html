@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Scenario Lab{% endblock %}
+{% block heading %}Scenario Lab{% endblock %}
+
+{% block content %}
+
+<div class="page-actions scenario-header">
+    <div>
+        <span class="section-kicker">WHAT-IF SAFETY TESTING</span>
+        <p>Simulate mine conditions and see how the risk engine responds.</p>
+    </div>
+
+    <span class="simulation-badge">
+        <span></span> Simulation Mode
+    </span>
+</div>
+
+
+<div class="scenario-layout">
+
+    <!-- INPUT PANEL -->
+
+    <section class="panel scenario-input-panel">
+
+        <div class="panel-head">
+            <div>
+                <span class="section-kicker">INPUT PARAMETERS</span>
+                <h2>Test a Mine Condition</h2>
+                <p class="panel-subtitle">
+                    Adjust the parameters and run the risk engine.
+                </p>
+            </div>
+        </div>
+
+
+        <form class="scenario-form" method="post">
+
+            <div class="scenario-input-grid">
+
+                <label>
+                    <span>Factor of Safety</span>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        name="fs"
+                        value="{{ request.form.get('fs', '1.35') }}"
+                        required>
+                    <small>Lower values indicate reduced stability.</small>
+                </label>
+
+
+                <label>
+                    <span>Reinforcement</span>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        name="reinforcement"
+                        value="{{ request.form.get('reinforcement', '0.35') }}"
+                        required>
+                    <small>Estimated reinforcement/support level.</small>
+                </label>
+
+
+                <label>
+                    <span>Displacement</span>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            name="displacement_mm"
+                            value="{{ request.form.get('displacement_mm', '8') }}"
+                            required>
+                        <span>mm</span>
+                    </div>
+                    <small>Observed ground displacement.</small>
+                </label>
+
+
+                <label>
+                    <span>Rainfall</span>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            name="rainfall_mm"
+                            value="{{ request.form.get('rainfall_mm', '4') }}"
+                            required>
+                        <span>mm</span>
+                    </div>
+                    <small>Recent rainfall measurement.</small>
+                </label>
+
+
+                <label class="scenario-input-full">
+                    <span>Slope Angle</span>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="90"
+                            name="slope_angle"
+                            value="{{ request.form.get('slope_angle', '60') }}"
+                            required>
+                        <span>°</span>
+                    </div>
+                    <small>Current slope inclination.</small>
+                </label>
+
+            </div>
+
+
+            <div class="scenario-form-footer">
+
+                <span>
+                    <b>Tip:</b> Change one parameter at a time to understand
+                    its effect on the prediction.
+                </span>
+
+                <button type="submit" class="primary-cta">
+                    Run Prediction →
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- RESULT PANEL -->
+
+    <section class="panel scenario-result-panel">
+
+        {% if result %}
+
+            <div class="scenario-result-header">
+                <div>
+                    <span class="section-kicker">PREDICTION RESULT</span>
+                    <h2>Risk Assessment</h2>
+                </div>
+
+                <span class="result-status">
+                    ● Calculated
+                </span>
+            </div>
+
+
+            <div class="scenario-score-box">
+
+                <div class="scenario-score">
+                    <strong>{{ result.score }}</strong>
+                    <span>/100</span>
+                </div>
+
+                <div class="scenario-score-label">
+                    Risk Score
+                </div>
+
+            </div>
+
+
+            <div class="scenario-risk-level {{ result.level|lower }}">
+
+                <span class="scenario-risk-dot"></span>
+
+                <div>
+                    <strong>{{ result.level }} Risk</strong>
+                    <small>Based on the supplied scenario parameters</small>
+                </div>
+
+            </div>
+
+
+            <div class="scenario-factors">
+
+                <h3>Contributing Factors</h3>
+
+                {% for reason in result.reasons %}
+
+                <div class="factor">
+                    <span>!</span>
+                    <p>{{ reason }}</p>
+                </div>
+
+                {% else %}
+
+                <div class="factor safe">
+                    <span>✓</span>
+                    <p>No major threshold breach detected.</p>
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="scenario-disclaimer">
+                <strong>Prototype assessment</strong>
+                <p>
+                    This simulation is intended for demonstration and
+                    decision-support purposes only. It is not a substitute
+                    for professional mine safety assessment.
+                </p>
+            </div>
+
+        {% else %}
+
+            <div class="scenario-empty">
+
+                <div class="scenario-empty-icon">✦</div>
+
+                <h2>Run a Safety Scenario</h2>
+
+                <p>
+                    Change one or more parameters and run the prediction
+                    to see how the risk level changes.
+                </p>
+
+                <div class="scenario-empty-hint">
+                    Enter your parameters on the left →
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

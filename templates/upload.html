@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Data Upload{% endblock %}
+{% block heading %}Data Ingestion{% endblock %}
+
+{% block content %}
+
+<div class="page-actions upload-header">
+    <div>
+        <span class="section-kicker">ADMIN DATA PIPELINE</span>
+        <p>
+            Import field observations and run the built-in safety
+            assessment engine.
+        </p>
+    </div>
+
+    <span class="admin-only">
+        <span></span> ADMIN ONLY
+    </span>
+</div>
+
+
+<div class="upload-layout">
+
+    <!-- UPLOAD PANEL -->
+
+    <section class="panel upload-main-panel">
+
+        <div class="upload-intro">
+
+            <div class="upload-icon">
+                ⇧
+            </div>
+
+            <div>
+                <span class="section-kicker">FIELD DATA IMPORT</span>
+                <h2>Import Slope Readings</h2>
+                <p>
+                    Upload a CSV exported from your monitoring workflow.
+                    Each valid row will be assessed by the safety engine.
+                </p>
+            </div>
+
+        </div>
+
+
+        <form
+            class="upload-form"
+            method="post"
+            enctype="multipart/form-data"
+            id="csvUploadForm"
+        >
+
+            <!-- MINE -->
+
+            <div class="upload-field">
+
+                <label for="mine_id">
+                    Target Mine
+                </label>
+
+                <select
+                    id="mine_id"
+                    name="mine_id"
+                    required
+                >
+
+                    <option value="" disabled
+                        {% if not selected_mine %}selected{% endif %}>
+                        Select a mine
+                    </option>
+
+                    {% for mine in mines %}
+
+                    <option
+                        value="{{ mine.id }}"
+                        {% if selected_mine and mine.id == selected_mine.id %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ mine.name }}
+                        {% if mine.location %}
+                            — {{ mine.location }}
+                        {% endif %}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <small>
+                    All imported readings will be associated with this mine.
+                </small>
+
+            </div>
+
+
+            <!-- FILE -->
+
+            <div class="upload-field">
+
+                <label for="csvFile">
+                    CSV File
+                </label>
+
+                <label
+                    for="csvFile"
+                    class="csv-dropzone"
+                    id="csvDropzone"
+                >
+
+                    <input
+                        type="file"
+                        id="csvFile"
+                        name="file"
+                        accept=".csv,text/csv"
+                        required
+                    >
+
+                    <span class="csv-drop-icon">⇧</span>
+
+                    <strong id="fileName">
+                        Choose a CSV file
+                    </strong>
+
+                    <span id="fileHint">
+                        Click to browse or drag & drop
+                    </span>
+
+                    <small>
+                        CSV files only
+                    </small>
+
+                </label>
+
+            </div>
+
+
+            <!-- ACTION -->
+
+            <div class="upload-actions">
+
+                <div class="upload-security">
+                    <span>✓</span>
+                    <p>
+                        File is processed server-side and each reading
+                        is validated before assessment.
+                    </p>
+                </div>
+
+                <button
+                    type="submit"
+                    class="primary-cta upload-submit"
+                    id="uploadButton"
+                >
+                    Upload & Assess →
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- DATA CONTRACT -->
+
+    <aside class="panel contract-panel">
+
+        <div class="panel-head">
+
+            <div>
+                <span class="section-kicker">DATA CONTRACT</span>
+                <h2>CSV Requirements</h2>
+            </div>
+
+            <span class="contract-icon">CSV</span>
+
+        </div>
+
+
+        <div class="contract-section">
+
+            <span class="contract-label required">
+                REQUIRED
+            </span>
+
+            <div class="contract-tags">
+                <code>fs</code>
+                <code>reinforcement</code>
+            </div>
+
+            <p>
+                These columns must be present in every uploaded file.
+            </p>
+
+        </div>
+
+
+        <div class="contract-divider"></div>
+
+
+        <div class="contract-section">
+
+            <span class="contract-label optional">
+                OPTIONAL
+            </span>
+
+            <div class="contract-tags">
+
+                <code>timestamp</code>
+                <code>zone</code>
+                <code>displacement_mm</code>
+                <code>rainfall_mm</code>
+                <code>slope_angle</code>
+
+            </div>
+
+            <p>
+                Optional fields improve the accuracy and context of
+                the safety assessment.
+            </p>
+
+        </div>
+
+
+        <div class="csv-example">
+
+            <span>EXAMPLE HEADER</span>
+
+            <code>
+                fs,reinforcement,timestamp,zone,<br>
+                displacement_mm,rainfall_mm,slope_angle
+            </code>
+
+        </div>
+
+
+        <a
+            class="small-btn contract-download"
+            href="{{ url_for('export') }}"
+        >
+            ⇩ Download Current Data
+        </a>
+
+    </aside>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const input = document.getElementById('csvFile');
+    const fileName = document.getElementById('fileName');
+    const fileHint = document.getElementById('fileHint');
+    const dropzone = document.getElementById('csvDropzone');
+    const form = document.getElementById('csvUploadForm');
+    const button = document.getElementById('uploadButton');
+
+    if (!input) return;
+
+
+    function showFile(file) {
+
+        if (!file) return;
+
+        const name = file.name.toLowerCase();
+
+        if (!name.endsWith('.csv')) {
+
+            fileName.textContent = 'Invalid file type';
+            fileHint.textContent = 'Please select a CSV file';
+            dropzone.classList.add('invalid');
+
+            return;
+        }
+
+        dropzone.classList.remove('invalid');
+        dropzone.classList.add('selected');
+
+        fileName.textContent = file.name;
+
+        const size =
+            file.size < 1024 * 1024
+                ? (file.size / 1024).toFixed(1) + ' KB'
+                : (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+        fileHint.textContent = size + ' · Ready for upload';
+    }
+
+
+    input.addEventListener('change', function () {
+
+        if (this.files && this.files.length) {
+            showFile(this.files[0]);
+        }
+
+    });
+
+
+    ['dragenter', 'dragover'].forEach(function (eventName) {
+
+        dropzone.addEventListener(eventName, function (event) {
+
+            event.preventDefault();
+            dropzone.classList.add('dragging');
+
+        });
+
+    });
+
+
+    ['dragleave', 'drop'].forEach(function (eventName) {
+
+        dropzone.addEventListener(eventName, function (event) {
+
+            event.preventDefault();
+            dropzone.classList.remove('dragging');
+
+        });
+
+    });
+
+
+    dropzone.addEventListener('drop', function (event) {
+
+        const files = event.dataTransfer.files;
+
+        if (!files.length) return;
+
+        input.files = files;
+        showFile(files[0]);
+
+    });
+
+
+    form.addEventListener('submit', function () {
+
+        if (!input.files.length) return;
+
+        button.disabled = true;
+        button.innerHTML = 'Uploading & Assessing…';
+
+    });
+
+});
+</script>
+
+{% endblock %}

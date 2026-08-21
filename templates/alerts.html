@@ -1,0 +1,719 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Alerts{% endblock %}
+{% block heading %}Alerts{% endblock %}
+
+{% block content %}
+
+<section class="alerts-pro">
+
+    <!-- HERO -->
+    <div class="alerts-hero">
+
+        <div class="alerts-hero-copy">
+
+            <span class="alerts-kicker">
+                SAFETY COMMAND CENTER
+            </span>
+
+            <h1>
+                Alerts &amp; Incidents
+            </h1>
+
+            <p>
+                Monitor active mine safety conditions,
+                risk events and sensor warnings in real time.
+            </p>
+
+        </div>
+
+        <div class="alerts-live">
+
+            <span class="alerts-live-dot"></span>
+
+            <div>
+                <b>LIVE MONITORING</b>
+                <small>
+                    {{ alerts|length if alerts else 0 }}
+                    events detected
+                </small>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+    <div class="alerts-stats">
+
+        <div class="alert-stat total">
+
+            <span class="alert-stat-icon">◉</span>
+
+            <div>
+                <small>TOTAL EVENTS</small>
+
+                <strong>
+                    {{ alerts|length if alerts else 0 }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="alert-stat critical">
+
+            <span class="alert-stat-icon">!</span>
+
+            <div>
+                <small>CRITICAL</small>
+
+                <strong>
+                    {{
+                        alerts
+                        |selectattr('severity','equalto','Critical')
+                        |list
+                        |length
+                        if alerts else 0
+                    }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="alert-stat high">
+
+            <span class="alert-stat-icon">▲</span>
+
+            <div>
+                <small>HIGH RISK</small>
+
+                <strong>
+                    {{
+                        alerts
+                        |selectattr('severity','equalto','High')
+                        |list
+                        |length
+                        if alerts else 0
+                    }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="alert-stat resolved">
+
+            <span class="alert-stat-icon">✓</span>
+
+            <div>
+                <small>MONITORED</small>
+
+                <strong>
+                    {{ alerts|length if alerts else 0 }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TOOLBAR -->
+    <div class="alerts-toolbar">
+
+        <div class="alerts-search">
+
+            <span>⌕</span>
+
+            <input
+                id="alertSearch"
+                type="text"
+                placeholder="Search alerts, zones or messages..."
+                autocomplete="off">
+
+        </div>
+
+
+        <div class="alerts-filters">
+
+            <button
+                class="alert-filter active"
+                data-filter="all">
+                All
+            </button>
+
+            <button
+                class="alert-filter"
+                data-filter="Critical">
+                Critical
+            </button>
+
+            <button
+                class="alert-filter"
+                data-filter="High">
+                High
+            </button>
+
+            <button
+                class="alert-filter"
+                data-filter="Moderate">
+                Moderate
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ALERT LIST -->
+    <div
+        class="alerts-list"
+        id="alertsList">
+
+        {% if alerts %}
+
+            {% for alert in alerts %}
+
+            <article
+                class="alert-card {{ alert.severity|lower }}"
+                data-severity="{{ alert.severity }}"
+                data-search="
+                    {{ alert.title or '' }}
+                    {{ alert.message or '' }}
+                    {{ alert.zone or '' }}
+                    {{ alert.severity or '' }}
+                ">
+
+                <div class="alert-severity-line"></div>
+
+
+                <div class="alert-main-icon">
+
+                    {% if alert.severity == 'Critical' %}
+                        !
+                    {% elif alert.severity == 'High' %}
+                        ▲
+                    {% elif alert.severity == 'Moderate' %}
+                        !
+                    {% else %}
+                        ✓
+                    {% endif %}
+
+                </div>
+
+
+                <div class="alert-content">
+
+                    <div class="alert-topline">
+
+                        <span class="alert-badge">
+                            {{ alert.severity }}
+                        </span>
+
+                        {% if alert.zone %}
+                        <span class="alert-zone">
+                            ⌖ {{ alert.zone }}
+                        </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <h2>
+                        {{ alert.title or 'Safety Alert' }}
+                    </h2>
+
+
+                    <p>
+                        {{ alert.message or 'Safety event detected in the monitored area.' }}
+                    </p>
+
+
+                    <div class="alert-meta">
+
+                        {% if alert.created_at %}
+                        <span>
+                            ◷ {{ alert.created_at }}
+                        </span>
+                        {% endif %}
+
+                        <span>
+                            ● Live sensor event
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="alert-action">
+
+                    <span class="alert-status {{ 'closed' if alert.status == 'Closed' else '' }}">
+                        {{ alert.status or 'Open' }}
+                    </span>
+
+                    <!-- VIEW BUTTON -->
+                    <button
+                        type="button"
+                        class="alert-details">
+                        View
+                    </button>
+
+
+                    {% if alert.status != 'Closed' %}
+
+                    <form
+                        method="post"
+                        action="{{ url_for('close_alert', alert_id=alert.id) }}">
+
+                        <button
+                            type="submit"
+                            class="alert-close">
+                            Close
+                        </button>
+
+                    </form>
+
+                    {% endif %}
+
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="alerts-empty">
+
+                <div class="alerts-empty-icon">
+                    ✓
+                </div>
+
+                <h2>
+                    All clear
+                </h2>
+
+                <p>
+                    No active safety alerts are currently
+                    being reported by the monitoring system.
+                </p>
+
+                <span>
+                    Monitoring continues automatically.
+                </span>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- NO SEARCH RESULT -->
+    <div
+        class="alerts-no-results"
+        id="alertsNoResults"
+        hidden>
+
+        <div>⌕</div>
+
+        <h3>
+            No matching alerts
+        </h3>
+
+        <p>
+            Try another zone, severity or keyword.
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+(() => {
+
+    /* =====================================================
+       SEARCH + FILTER
+       ===================================================== */
+
+    const cards =
+        [...document.querySelectorAll(".alert-card")];
+
+    const filters =
+        [...document.querySelectorAll(".alert-filter")];
+
+    const search =
+        document.getElementById("alertSearch");
+
+    const empty =
+        document.getElementById("alertsNoResults");
+
+
+    let currentFilter = "all";
+
+
+    function renderAlerts() {
+
+        const query =
+            (search?.value || "")
+            .trim()
+            .toLowerCase();
+
+
+        let visible = 0;
+
+
+        cards.forEach(card => {
+
+            const severity =
+                card.dataset.severity || "";
+
+            const text =
+                (card.dataset.search || "")
+                .replace(/\s+/g, " ")
+                .toLowerCase();
+
+
+            const filterOK =
+                currentFilter === "all" ||
+                severity === currentFilter;
+
+
+            const searchOK =
+                !query ||
+                text.includes(query);
+
+
+            const show =
+                filterOK && searchOK;
+
+
+            card.style.display =
+                show ? "grid" : "none";
+
+
+            if (show) {
+                visible++;
+            }
+
+        });
+
+
+        if (empty) {
+
+            empty.hidden =
+                visible !== 0;
+
+        }
+
+    }
+
+
+    filters.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                filters.forEach(
+                    b => b.classList.remove("active")
+                );
+
+                button.classList.add("active");
+
+                currentFilter =
+                    button.dataset.filter || "all";
+
+                renderAlerts();
+
+            }
+        );
+
+    });
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            renderAlerts
+        );
+
+    }
+
+
+    /* =====================================================
+       ALERT VIEW DETAILS
+       ===================================================== */
+
+    document
+        .querySelectorAll(".alert-details")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const card =
+                        button.closest(".alert-card");
+
+                    if (!card) {
+                        return;
+                    }
+
+
+                    /* Remove existing details if already open */
+                    const existing =
+                        card.querySelector(
+                            ".alert-view-message"
+                        );
+
+
+                    if (existing) {
+
+                        existing.remove();
+
+                        card.classList.remove(
+                            "expanded"
+                        );
+
+                        button.textContent =
+                            "View";
+
+                        return;
+
+                    }
+
+
+                    /* Get information already displayed in the card */
+
+                    const titleElement =
+                        card.querySelector("h2");
+
+                    const messageElement =
+                        card.querySelector(
+                            ".alert-content p"
+                        );
+
+                    const zoneElement =
+                        card.querySelector(
+                            ".alert-zone"
+                        );
+
+
+                    const title =
+                        titleElement
+                            ? titleElement.textContent.trim()
+                            : "Safety Alert";
+
+
+                    const message =
+                        messageElement
+                            ? messageElement.textContent.trim()
+                            : "A safety event has been detected.";
+
+
+                    const zone =
+                        zoneElement
+                            ? zoneElement.textContent.trim()
+                            : "Unknown Zone";
+
+
+                    const severity =
+                        card.dataset.severity ||
+                        "Unknown";
+
+
+                    /*
+                     * Create a problem-specific explanation.
+                     */
+
+                    let explanation =
+                        message;
+
+
+                    const text =
+                        (
+                            title +
+                            " " +
+                            message
+                        ).toLowerCase();
+
+
+                    /* ROCKFALL */
+
+                    if (
+                        text.includes("rockfall") ||
+                        text.includes("rock fall")
+                    ) {
+
+                        explanation =
+                            "Rockfall risk has been detected in " +
+                            zone +
+                            ". Unstable rocks may detach from " +
+                            "the mine slope. The affected area " +
+                            "should be avoided and inspected " +
+                            "before normal operations continue.";
+
+                    }
+
+
+                    /* DISPLACEMENT / MOVEMENT */
+
+                    else if (
+                        text.includes("displacement") ||
+                        text.includes("movement")
+                    ) {
+
+                        explanation =
+                            "Abnormal ground movement has been " +
+                            "detected in " +
+                            zone +
+                            ". This may indicate slope instability. " +
+                            "The affected area should be monitored " +
+                            "closely and inspected by the safety team.";
+
+                    }
+
+
+                    /* RAINFALL */
+
+                    else if (
+                        text.includes("rainfall") ||
+                        text.includes("heavy rain") ||
+                        text.includes("rain")
+                    ) {
+
+                        explanation =
+                            "Increased rainfall has been detected " +
+                            "in " +
+                            zone +
+                            ". Heavy rainfall can weaken mine " +
+                            "slopes and increase the possibility " +
+                            "of rockfall or ground movement.";
+
+                    }
+
+
+                    /* SENSOR */
+
+                    else if (
+                        text.includes("sensor") ||
+                        text.includes("offline")
+                    ) {
+
+                        explanation =
+                            "A sensor monitoring problem has been " +
+                            "detected in " +
+                            zone +
+                            ". Reduced sensor coverage may affect " +
+                            "the reliability of automated monitoring. " +
+                            "Please check the affected sensor.";
+
+                    }
+
+
+                    /* STABILITY / FOS */
+
+                    else if (
+                        text.includes("stability") ||
+                        text.includes("factor of safety") ||
+                        text.includes("fos")
+                    ) {
+
+                        explanation =
+                            "The stability condition of " +
+                            zone +
+                            " requires attention. The current " +
+                            "stability indicators suggest that " +
+                            "the area should be monitored and " +
+                            "manually inspected if necessary.";
+
+                    }
+
+
+                    /* Create details panel */
+
+                    const details =
+                        document.createElement("div");
+
+
+                    details.className =
+                        "alert-view-message";
+
+
+                    details.innerHTML =
+                        "<strong>Problem Details</strong>" +
+                        "<p>" +
+                        explanation +
+                        "</p>" +
+
+                        "<p>" +
+                        "<b>Severity:</b> " +
+                        severity +
+                        "</p>" +
+
+                        "<p>" +
+                        "<b>Zone:</b> " +
+                        zone +
+                        "</p>" +
+
+                        "<p>" +
+                        "<b>Recommended Action:</b> " +
+                        "Keep personnel away from the affected " +
+                        "area if required and perform a safety " +
+                        "inspection before resuming normal " +
+                        "operations." +
+                        "</p>";
+
+
+                    /*
+                     * Put the details inside the alert content.
+                     */
+
+                    const content =
+                        card.querySelector(
+                            ".alert-content"
+                        );
+
+
+                    if (content) {
+
+                        content.appendChild(
+                            details
+                        );
+
+                    }
+
+
+                    card.classList.add(
+                        "expanded"
+                    );
+
+
+                    button.textContent =
+                        "Hide";
+
+                }
+            );
+
+        });
+
+
+    /* Initial render */
+
+    renderAlerts();
+
+})();
+</script>
+
+{% endblock %}

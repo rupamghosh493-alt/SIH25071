@@ -1,0 +1,1109 @@
+{% extends 'base.html' %}
+
+{% block title %}OpenPit | AI-Powered Mine Safety{% endblock %}
+
+{% block public_content %}
+
+<style>
+/* =========================================================
+   OPENPIT — WELCOME PAGE
+   Only affects this page.
+   No route / backend changes required.
+   ========================================================= */
+
+.openpit-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 82% 8%, rgba(78, 117, 255, 0.10), transparent 30%),
+        radial-gradient(circle at 8% 70%, rgba(23, 190, 170, 0.07), transparent 28%),
+        #f8fafc;
+    color: #101828;
+    overflow: hidden;
+}
+
+/* ---------- NAVBAR ---------- */
+
+.openpit-nav {
+    max-width: 1240px;
+    height: 82px;
+    margin: auto;
+    padding: 0 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.openpit-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #101828;
+}
+
+.openpit-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+
+    background: linear-gradient(145deg, #172554, #2563eb);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+    overflow: hidden;
+
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.20);
+}
+
+/* Abstract open-pit layers */
+.openpit-logo::before,
+.openpit-logo::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    height: 7px;
+    border-radius: 50%;
+    transform: rotate(-8deg);
+}
+
+.openpit-logo::before {
+    top: 13px;
+    border: 2px solid rgba(255,255,255,.85);
+}
+
+.openpit-logo::after {
+    top: 21px;
+    border: 2px solid rgba(93, 234, 212, .9);
+}
+
+.openpit-brand-text strong {
+    display: block;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.openpit-brand-text small {
+    display: block;
+    margin-top: 2px;
+    font-size: 9px;
+    color: #667085;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
+
+.openpit-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 8px 12px;
+    border: 1px solid #dbe4f0;
+    border-radius: 999px;
+
+    background: rgba(255,255,255,.75);
+    color: #475467;
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.openpit-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #14b87a;
+    box-shadow: 0 0 0 4px rgba(20,184,122,.10);
+}
+
+
+/* ---------- HERO ---------- */
+
+.openpit-hero {
+    max-width: 1240px;
+    margin: auto;
+    padding: 65px 28px 85px;
+
+    display: grid;
+    grid-template-columns: 1.02fr .98fr;
+    gap: 65px;
+    align-items: center;
+}
+
+.openpit-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 12px;
+
+    border-radius: 999px;
+    border: 1px solid #d6e2fb;
+    background: #eff5ff;
+
+    color: #245bc7;
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .35px;
+}
+
+.openpit-kicker-icon {
+    font-size: 12px;
+}
+
+.openpit-title {
+    max-width: 690px;
+
+    margin: 22px 0 20px;
+
+    font-size: 61px;
+    line-height: 1.02;
+    letter-spacing: -3.3px;
+    font-weight: 800;
+}
+
+.openpit-title span {
+    display: block;
+
+    background: linear-gradient(
+        100deg,
+        #2563eb,
+        #4f46e5,
+        #0891b2
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.openpit-description {
+    max-width: 610px;
+
+    color: #667085;
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.openpit-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin-top: 29px;
+}
+
+.openpit-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+
+    padding: 13px 19px;
+
+    border-radius: 11px;
+
+    background: linear-gradient(135deg, #2563eb, #4338ca);
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    box-shadow: 0 12px 28px rgba(37,99,235,.22);
+
+    transition: .2s ease;
+}
+
+.openpit-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(37,99,235,.27);
+}
+
+.openpit-primary-arrow {
+    font-size: 15px;
+}
+
+.openpit-mini-note {
+    color: #667085;
+    font-size: 9px;
+}
+
+
+/* ---------- HERO STATS ---------- */
+
+.openpit-stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 35px;
+}
+
+.openpit-stat {
+    min-width: 118px;
+
+    padding: 13px 15px;
+
+    background: rgba(255,255,255,.78);
+
+    border: 1px solid #e4eaf2;
+    border-radius: 12px;
+
+    box-shadow: 0 8px 25px rgba(16,24,40,.035);
+}
+
+.openpit-stat strong {
+    display: block;
+    font-size: 18px;
+    letter-spacing: -.5px;
+}
+
+.openpit-stat span {
+    display: block;
+    margin-top: 4px;
+
+    color: #667085;
+    font-size: 8px;
+}
+
+
+/* ---------- HERO VISUAL ---------- */
+
+.openpit-visual {
+    height: 455px;
+
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 30px;
+
+    background:
+        radial-gradient(circle at 50% 40%, rgba(63, 91, 255, .18), transparent 35%),
+        linear-gradient(145deg, #eef4ff, #eefaf8);
+
+    border: 1px solid #dce5f0;
+
+    box-shadow:
+        0 30px 70px rgba(30, 55, 90, .10);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* grid in background */
+.openpit-grid {
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        linear-gradient(rgba(70,100,150,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(70,100,150,.055) 1px, transparent 1px);
+
+    background-size: 34px 34px;
+
+    mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+/* central terrain */
+.openpit-terrain {
+    width: 340px;
+    height: 275px;
+
+    position: relative;
+
+    transform: perspective(700px) rotateX(54deg) rotateZ(-9deg);
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dbeafe,
+            #bfdbfe 38%,
+            #99f6e4 100%
+        );
+
+    border: 2px solid rgba(37,99,235,.25);
+
+    box-shadow:
+        0 30px 50px rgba(37,99,235,.16);
+
+    overflow: hidden;
+}
+
+/* terrain contour lines */
+.openpit-terrain::before,
+.openpit-terrain::after {
+    content: "";
+    position: absolute;
+    inset: 20px;
+
+    border: 2px solid rgba(37,99,235,.22);
+    border-radius: 50%;
+}
+
+.openpit-terrain::after {
+    inset: 62px;
+    border-color: rgba(13,148,136,.28);
+}
+
+.openpit-zone {
+    position: absolute;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+    border: 4px solid #2563eb;
+
+    box-shadow:
+        0 0 0 8px rgba(37,99,235,.08),
+        0 10px 22px rgba(37,99,235,.15);
+
+    font-size: 8px;
+    font-weight: 800;
+    color: #1d4ed8;
+
+    z-index: 5;
+}
+
+.openpit-zone-a {
+    left: 68px;
+    top: 60px;
+}
+
+.openpit-zone-b {
+    right: 58px;
+    top: 85px;
+}
+
+.openpit-zone-c {
+    left: 105px;
+    bottom: 48px;
+}
+
+.openpit-zone-d {
+    right: 82px;
+    bottom: 42px;
+}
+
+/* center prediction */
+.openpit-prediction {
+    position: absolute;
+
+    width: 120px;
+    height: 120px;
+
+    border-radius: 50%;
+
+    background: rgba(37,99,235,.08);
+    border: 1px dashed rgba(37,99,235,.35);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 3;
+}
+
+.openpit-prediction-inner {
+    width: 72px;
+    height: 72px;
+
+    border-radius: 50%;
+
+    background: linear-gradient(145deg,#2563eb,#4338ca);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+
+    box-shadow: 0 15px 35px rgba(37,99,235,.25);
+}
+
+
+/* floating information cards */
+
+.openpit-float {
+    position: absolute;
+
+    padding: 11px 13px;
+
+    background: rgba(255,255,255,.92);
+
+    border: 1px solid rgba(220,229,240,.95);
+
+    border-radius: 11px;
+
+    box-shadow: 0 12px 30px rgba(16,24,40,.08);
+
+    z-index: 10;
+}
+
+.openpit-float strong {
+    display: block;
+    font-size: 10px;
+}
+
+.openpit-float span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #667085;
+    font-size: 8px;
+}
+
+.openpit-float-one {
+    top: 52px;
+    left: 35px;
+}
+
+.openpit-float-two {
+    top: 82px;
+    right: 28px;
+}
+
+.openpit-float-three {
+    bottom: 55px;
+    left: 35px;
+}
+
+.openpit-float-four {
+    bottom: 38px;
+    right: 28px;
+}
+
+
+/* ---------- FEATURES ---------- */
+
+.openpit-overview {
+    max-width: 1180px;
+    margin: auto;
+
+    padding: 80px 28px 95px;
+}
+
+.openpit-section-heading {
+    text-align: center;
+}
+
+.openpit-section-kicker {
+    color: #2563eb;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.openpit-section-heading h2 {
+    margin: 9px 0;
+
+    font-size: 36px;
+    letter-spacing: -1.5px;
+}
+
+.openpit-section-heading p {
+    max-width: 620px;
+    margin: auto;
+
+    color: #667085;
+
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.openpit-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+
+    margin-top: 38px;
+}
+
+.openpit-feature {
+    min-height: 190px;
+
+    padding: 23px;
+
+    background: rgba(255,255,255,.82);
+
+    border: 1px solid #e3e9f1;
+    border-radius: 17px;
+
+    box-shadow: 0 10px 30px rgba(16,24,40,.035);
+
+    transition: .2s ease;
+}
+
+.openpit-feature:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 35px rgba(16,24,40,.07);
+}
+
+.openpit-feature-icon {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.openpit-blue {
+    background: #eaf2ff;
+    color: #2563eb;
+}
+
+.openpit-teal {
+    background: #e5f8f5;
+    color: #0f9f8c;
+}
+
+.openpit-violet {
+    background: #efedff;
+    color: #6554c0;
+}
+
+.openpit-cyan {
+    background: #e7f8fc;
+    color: #0784a3;
+}
+
+.openpit-indigo {
+    background: #eceeff;
+    color: #4f46e5;
+}
+
+.openpit-green {
+    background: #e8f8f0;
+    color: #14805b;
+}
+
+.openpit-feature h3 {
+    margin: 15px 0 7px;
+
+    font-size: 15px;
+}
+
+.openpit-feature p {
+    margin: 0;
+
+    color: #667085;
+
+    font-size: 10px;
+    line-height: 1.65;
+}
+
+
+/* ---------- FINAL CTA ---------- */
+
+.openpit-final {
+    max-width: 1120px;
+    margin: 0 auto 70px;
+
+    padding: 60px 25px;
+
+    border-radius: 26px;
+
+    text-align: center;
+
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.15), transparent 30%),
+        linear-gradient(120deg, #172554, #1e40af 50%, #0f766e);
+
+    color: white;
+
+    box-shadow: 0 25px 60px rgba(23,37,84,.16);
+}
+
+.openpit-final h2 {
+    margin: 0 0 9px;
+
+    font-size: 34px;
+    letter-spacing: -1px;
+}
+
+.openpit-final p {
+    margin: 0 auto 24px;
+
+    max-width: 550px;
+
+    font-size: 12px;
+    line-height: 1.7;
+
+    color: rgba(255,255,255,.78);
+}
+
+.openpit-final-note {
+    font-size: 9px;
+    color: rgba(255,255,255,.55);
+}
+
+
+/* ---------- FOOTER ---------- */
+
+.openpit-footer {
+    max-width: 1180px;
+
+    margin: auto;
+    padding: 0 28px 30px;
+
+    display: flex;
+    justify-content: space-between;
+
+    color: #98a2b3;
+
+    font-size: 9px;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 950px) {
+
+    .openpit-hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .openpit-title {
+        font-size: 52px;
+    }
+
+    .openpit-visual {
+        max-width: 650px;
+        width: 100%;
+        margin: auto;
+    }
+
+    .openpit-features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .openpit-nav {
+        padding: 0 18px;
+    }
+
+    .openpit-status {
+        display: none;
+    }
+
+    .openpit-hero {
+        padding: 45px 18px 65px;
+    }
+
+    .openpit-title {
+        font-size: 42px;
+        letter-spacing: -2px;
+    }
+
+    .openpit-description {
+        font-size: 13px;
+    }
+
+    .openpit-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .openpit-stats {
+        flex-wrap: wrap;
+    }
+
+    .openpit-visual {
+        height: 350px;
+    }
+
+    .openpit-terrain {
+        width: 270px;
+        height: 220px;
+    }
+
+    .openpit-float {
+        transform: scale(.85);
+    }
+
+    .openpit-features {
+        grid-template-columns: 1fr;
+    }
+
+    .openpit-overview {
+        padding: 60px 18px 70px;
+    }
+
+    .openpit-section-heading h2 {
+        font-size: 30px;
+    }
+
+    .openpit-final {
+        margin: 0 15px 50px;
+        padding: 45px 20px;
+    }
+
+    .openpit-final h2 {
+        font-size: 28px;
+    }
+
+    .openpit-footer {
+        padding: 0 18px 25px;
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+</style>
+
+
+<div class="openpit-page">
+
+    <!-- ================= NAVIGATION ================= -->
+
+    <header class="openpit-nav">
+
+        <a href="{{ url_for('home') }}" class="openpit-brand">
+
+            <span class="openpit-logo"></span>
+
+            <span class="openpit-brand-text">
+                <strong>OpenPit</strong>
+                <small>AI Mine Safety Platform</small>
+            </span>
+
+        </a>
+
+        <div class="openpit-status">
+            <span class="openpit-status-dot"></span>
+            Safety Intelligence Online
+        </div>
+
+    </header>
+
+
+    <!-- ================= HERO ================= -->
+
+    <section class="openpit-hero">
+
+        <div>
+
+            <div class="openpit-kicker">
+                <span class="openpit-kicker-icon">✦</span>
+                AI-POWERED ROCKFALL PREDICTION
+            </div>
+
+
+            <h1 class="openpit-title">
+                See the risk
+                <span>before the rock falls.</span>
+            </h1>
+
+
+            <p class="openpit-description">
+                OpenPit brings sensor intelligence, mine conditions,
+                risk analysis and predictive AI together in one safety
+                platform built for open-pit mining operations.
+            </p>
+
+
+            <div class="openpit-actions">
+
+                <!-- ONLY ONE GET STARTED BUTTON -->
+
+                <a href="{{ url_for('login') }}" class="openpit-primary">
+                    Get Started
+                    <span class="openpit-primary-arrow">→</span>
+                </a>
+
+                <span class="openpit-mini-note">
+                    Predict · Monitor · Respond
+                </span>
+
+            </div>
+
+
+            <div class="openpit-stats">
+
+                <div class="openpit-stat">
+                    <strong>24/7</strong>
+                    <span>Safety Monitoring</span>
+                </div>
+
+                <div class="openpit-stat">
+                    <strong>22</strong>
+                    <span>Safety Parameters</span>
+                </div>
+
+                <div class="openpit-stat">
+                    <strong>5-Model</strong>
+                    <span>AI Ensemble</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= VISUAL ================= -->
+
+        <div class="openpit-visual">
+
+            <div class="openpit-grid"></div>
+
+
+            <!-- Terrain / open pit representation -->
+
+            <div class="openpit-terrain">
+
+                <div class="openpit-zone openpit-zone-a">
+                    A
+                </div>
+
+                <div class="openpit-zone openpit-zone-b">
+                    B
+                </div>
+
+                <div class="openpit-zone openpit-zone-c">
+                    C
+                </div>
+
+                <div class="openpit-zone openpit-zone-d">
+                    D
+                </div>
+
+            </div>
+
+
+            <!-- AI prediction indicator -->
+
+            <div class="openpit-prediction">
+
+                <div class="openpit-prediction-inner">
+                    AI<br>
+                    RISK<br>
+                    ANALYSIS
+                </div>
+
+            </div>
+
+
+            <!-- Floating information -->
+
+            <div class="openpit-float openpit-float-one">
+                <strong>◈ Terrain Data</strong>
+                <span>Mine surface analysis</span>
+            </div>
+
+            <div class="openpit-float openpit-float-two">
+                <strong>✦ AI Prediction</strong>
+                <span>Risk assessed continuously</span>
+            </div>
+
+            <div class="openpit-float openpit-float-three">
+                <strong>◉ Live Sensors</strong>
+                <span>Environmental signals</span>
+            </div>
+
+            <div class="openpit-float openpit-float-four">
+                <strong>! Smart Alerts</strong>
+                <span>Actionable safety warnings</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= OVERVIEW ================= -->
+
+    <section class="openpit-overview">
+
+        <div class="openpit-section-heading">
+
+            <div class="openpit-section-kicker">
+                ONE CONNECTED SAFETY PLATFORM
+            </div>
+
+            <h2>
+                From mine data to safer decisions.
+            </h2>
+
+            <p>
+                OpenPit connects prediction, risk visualisation,
+                monitoring and alerts so safety teams can understand
+                what is happening and respond before conditions become critical.
+            </p>
+
+        </div>
+
+
+        <div class="openpit-features">
+
+            <article class="openpit-feature">
+
+                <div class="openpit-feature-icon openpit-blue">
+                    ✦
+                </div>
+
+                <h3>AI Prediction</h3>
+
+                <p>
+                    Analyse multiple safety parameters and identify
+                    patterns that may indicate increasing rockfall risk.
+                </p>
+
+            </article>
+
+
+            <article class="openpit-feature">
+
+                <div class="openpit-feature-icon openpit-teal">
+                    ◈
+                </div>
+
+                <h3>Risk Mapping</h3>
+
+                <p>
+                    Visualise mine zones according to their current
+                    safety condition and predicted risk level.
+                </p>
+
+            </article>
+
+
+            <article class="openpit-feature">
+
+                <div class="openpit-feature-icon openpit-violet">
+                    ✧
+                </div>
+
+                <h3>Smart Analysis</h3>
+
+                <p>
+                    Combine model predictions and contributing factors
+                    to make the risk assessment easier to understand.
+                </p>
+
+            </article>
+
+
+            <article class="openpit-feature">
+
+                <div class="openpit-feature-icon openpit-cyan">
+                    ◉
+                </div>
+
+                <h3>Sensor Monitoring</h3>
+
+                <p>
+                    Track sensor availability and mine-condition data
+                    to identify missing or abnormal signals quickly.
+                </p>
+
+            </article>
+
+
+            <article class="openpit-feature">
+
+                <div class="openpit-feature-icon openpit-indigo">
+                    !
+                </div>
+
+                <h3>Real-Time Alerts</h3>
+
+                <p>
+                    Surface critical and high-risk conditions clearly
+                    so the safety team knows where attention is needed.
+                </p>
+
+            </article>
+
+
+            <article class="openpit-feature">
+
+                <div class="openpit-feature-icon openpit-green">
+                    ✓
+                </div>
+
+                <h3>Worker Safety</h3>
+
+                <p>
+                    Give mine personnel a connected view of hazards,
+                    conditions and safety information.
+                </p>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= FINAL CTA ================= -->
+
+    <section class="openpit-final">
+
+        <h2>
+            Ready to make mine safety predictive?
+        </h2>
+
+        <p>
+            Enter the OpenPit safety workspace and turn mine data
+            into early warnings, clearer decisions and safer operations.
+        </p>
+
+        <!-- No second Get Started button here -->
+
+        <div class="openpit-final-note">
+            AI-Based Rockfall Prediction & Alert System · Open-Pit Mines
+        </div>
+
+    </section>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="openpit-footer">
+
+        <span>
+            OpenPit · Predict. Monitor. Protect.
+        </span>
+
+        <span>
+            SIH PS 25071 · Prototype
+        </span>
+
+    </footer>
+
+</div>
+
+{% endblock %}

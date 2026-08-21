@@ -1,0 +1,626 @@
+{% extends 'base.html' %}
+
+{% block title %}OpenPit | Login{% endblock %}
+
+{% block public_content %}
+
+<style>
+    .openpit-login-page {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at 85% 15%, rgba(37,99,235,.10), transparent 30%),
+            radial-gradient(circle at 10% 80%, rgba(13,148,136,.07), transparent 28%),
+            #f8fafc;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 45px 20px;
+        color: #101828;
+    }
+
+    .openpit-login-wrapper {
+        width: 100%;
+        max-width: 980px;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        background: rgba(255,255,255,.96);
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        overflow: hidden;
+
+        box-shadow: 0 25px 70px rgba(16,24,40,.10);
+    }
+
+    /* LEFT SIDE */
+
+    .openpit-login-info {
+        position: relative;
+        overflow: hidden;
+
+        padding: 55px 45px;
+
+        background:
+            radial-gradient(circle at 80% 15%, rgba(96,165,250,.18), transparent 30%),
+            linear-gradient(145deg, #172554, #1e3a8a 55%, #0f766e);
+
+        color: white;
+    }
+
+    .openpit-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #172554, #2563eb);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+    overflow: hidden;
+
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.20);
+}
+
+.openpit-logo::before,
+.openpit-logo::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    height: 7px;
+    border-radius: 50%;
+    transform: rotate(-8deg);
+}
+
+.openpit-logo::before {
+    top: 13px;
+    border: 2px solid rgba(255,255,255,.85);
+}
+
+.openpit-logo::after {
+    top: 21px;
+    border: 2px solid rgba(93, 234, 212, .9);
+}
+
+    .openpit-login-info h1 {
+        margin: 0;
+
+        font-size: 36px;
+        line-height: 1.15;
+        letter-spacing: -1.2px;
+    }
+
+    .openpit-login-info h1 span {
+        color: #67e8f9;
+    }
+
+    .openpit-login-info p {
+        margin-top: 18px;
+        max-width: 390px;
+
+        color: rgba(255,255,255,.76);
+
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .openpit-login-points {
+        margin-top: 32px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .openpit-login-point {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        font-size: 13px;
+        color: rgba(255,255,255,.88);
+    }
+
+    .openpit-point-icon {
+        width: 29px;
+        height: 29px;
+
+        flex-shrink: 0;
+
+        border-radius: 9px;
+
+        background: rgba(255,255,255,.11);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: #67e8f9;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .openpit-login-circle {
+        position: absolute;
+
+        width: 270px;
+        height: 270px;
+
+        right: -125px;
+        bottom: -105px;
+
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 50%;
+    }
+
+    .openpit-login-circle::before {
+        content: "";
+
+        position: absolute;
+        inset: 30px;
+
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 50%;
+    }
+
+    .openpit-login-circle::after {
+        content: "";
+
+        position: absolute;
+        inset: 70px;
+
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 50%;
+    }
+
+    /* RIGHT SIDE */
+
+    .openpit-login-form {
+        padding: 55px 50px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .openpit-form-heading h2 {
+        margin: 0;
+
+        font-size: 30px;
+        letter-spacing: -.8px;
+        color: #101828;
+    }
+
+    .openpit-form-heading p {
+        margin: 8px 0 32px;
+
+        color: #667085;
+
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    /* INPUTS */
+
+    .openpit-input-group {
+        margin-bottom: 20px;
+    }
+
+    .openpit-input-group label {
+        display: block;
+
+        margin-bottom: 8px;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        color: #344054;
+    }
+
+    .openpit-input-wrapper {
+        position: relative;
+    }
+
+    .openpit-input {
+        width: 100%;
+        box-sizing: border-box;
+
+        padding: 14px;
+
+        border: 1px solid #d0d5dd;
+        border-radius: 10px;
+
+        background: #fff;
+        color: #101828;
+
+        font-family: inherit;
+        font-size: 14px;
+
+        outline: none;
+
+        transition: .2s ease;
+    }
+
+    .openpit-input-wrapper .openpit-input {
+        padding-right: 48px;
+    }
+
+    .openpit-input::placeholder {
+        color: #98a2b3;
+    }
+
+    .openpit-input:focus {
+        border-color: #2563eb;
+
+        box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+    }
+
+    /* PASSWORD EYE */
+
+    .openpit-password-toggle {
+        position: absolute;
+
+        right: 9px;
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        width: 34px;
+        height: 34px;
+
+        border: none;
+        border-radius: 8px;
+
+        background: transparent;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: #667085;
+
+        cursor: pointer;
+
+        font-size: 16px;
+
+        transition: .2s ease;
+    }
+
+    .openpit-password-toggle:hover {
+        background: #f2f4f7;
+        color: #2563eb;
+    }
+
+    /* BUTTON */
+
+    .openpit-login-button {
+        width: 100%;
+
+        border: none;
+
+        padding: 14px 18px;
+
+        border-radius: 11px;
+
+        background: linear-gradient(135deg, #2563eb, #4338ca);
+
+        color: white;
+
+        font-family: inherit;
+
+        font-size: 14px;
+        font-weight: 800;
+
+        cursor: pointer;
+
+        box-shadow: 0 12px 25px rgba(37,99,235,.20);
+
+        transition: .2s ease;
+    }
+
+    .openpit-login-button:hover {
+        transform: translateY(-1px);
+
+        box-shadow: 0 15px 30px rgba(37,99,235,.25);
+    }
+
+    /* BACK */
+
+    .openpit-back {
+        display: block;
+
+        margin-top: 20px;
+
+        text-align: center;
+
+        color: #667085;
+
+        text-decoration: none;
+
+        font-size: 12px;
+    }
+
+    .openpit-back:hover {
+        color: #2563eb;
+    }
+
+    /* INFO */
+
+    .openpit-demo-note {
+        margin-top: 24px;
+
+        padding: 12px 14px;
+
+        border-radius: 10px;
+
+        background: #f8fafc;
+
+        border: 1px solid #e5eaf1;
+
+        color: #667085;
+
+        font-size: 11px;
+        line-height: 1.5;
+
+        text-align: center;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 760px) {
+
+        .openpit-login-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .openpit-login-info {
+            padding: 35px 30px;
+        }
+
+        .openpit-login-info h1 {
+            font-size: 30px;
+        }
+
+        .openpit-login-points {
+            display: none;
+        }
+
+        .openpit-login-form {
+            padding: 40px 30px;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .openpit-login-page {
+            padding: 20px 12px;
+        }
+
+        .openpit-form-heading h2 {
+            font-size: 26px;
+        }
+    }
+</style>
+
+
+<div class="openpit-login-page">
+
+    <div class="openpit-login-wrapper">
+
+        <!-- LEFT SIDE -->
+
+        <section class="openpit-login-info">
+
+            <div class="openpit-login-logo">
+                <span class="openpit-logo"></span>
+            </div>
+
+            <h1>
+                Welcome to
+                <span>OpenPit.</span>
+            </h1>
+
+            <p>
+                Access the mine safety workspace to monitor
+                conditions, understand rockfall risk and respond
+                to critical alerts.
+            </p>
+
+            <div class="openpit-login-points">
+
+                <div class="openpit-login-point">
+                    <span class="openpit-point-icon">✦</span>
+                    <span>AI-powered risk prediction</span>
+                </div>
+
+                <div class="openpit-login-point">
+                    <span class="openpit-point-icon">◈</span>
+                    <span>Real-time mine monitoring</span>
+                </div>
+
+                <div class="openpit-login-point">
+                    <span class="openpit-point-icon">!</span>
+                    <span>Intelligent safety alerts</span>
+                </div>
+
+                <div class="openpit-login-point">
+                    <span class="openpit-point-icon">✓</span>
+                    <span>Worker-focused safety insights</span>
+                </div>
+
+            </div>
+
+            <div class="openpit-login-circle"></div>
+
+        </section>
+
+
+        <!-- RIGHT SIDE -->
+
+        <section class="openpit-login-form">
+
+            <div class="openpit-form-heading">
+
+                <h2>Sign in to OpenPit</h2>
+
+                <p>
+                    Enter your credentials to continue to
+                    the mine safety workspace.
+                </p>
+
+            </div>
+
+
+            <!-- LOGIN FORM -->
+
+            <form
+                method="POST"
+                action="{{ url_for('login') }}"
+            >
+
+                <!-- EMAIL -->
+
+                <div class="openpit-input-group">
+
+                    <label for="email">
+                        Email / ID
+                    </label>
+
+                    <input
+                        id="email"
+                        name="email"
+                        type="text"
+                        class="openpit-input"
+                        placeholder="Enter your email or ID"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="openpit-input-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="openpit-input-wrapper">
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="openpit-input"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="passwordToggle"
+                            class="openpit-password-toggle"
+                            onclick="togglePassword()"
+                            aria-label="Show password"
+                            title="Show password"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SIGN IN -->
+
+                <button
+                    type="submit"
+                    class="openpit-login-button"
+                >
+                    Sign In →
+                </button>
+
+            </form>
+
+
+            <!-- BACK -->
+
+            <a
+                href="{{ url_for('home') }}"
+                class="openpit-back"
+            >
+                ← Back to OpenPit
+            </a>
+
+
+            <div class="openpit-demo-note">
+                Secure access to the OpenPit mine safety platform.
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<!-- SHOW / HIDE PASSWORD -->
+
+<script>
+
+function togglePassword() {
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const toggleButton =
+        document.getElementById("passwordToggle");
+
+
+    if (passwordInput.type === "password") {
+
+        passwordInput.type = "text";
+
+        toggleButton.textContent = "🙈";
+
+        toggleButton.setAttribute(
+            "aria-label",
+            "Hide password"
+        );
+
+        toggleButton.setAttribute(
+            "title",
+            "Hide password"
+        );
+
+    } else {
+
+        passwordInput.type = "password";
+
+        toggleButton.textContent = "👁";
+
+        toggleButton.setAttribute(
+            "aria-label",
+            "Show password"
+        );
+
+        toggleButton.setAttribute(
+            "title",
+            "Show password"
+        );
+
+    }
+}
+
+</script>
+
+{% endblock %}

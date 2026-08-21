@@ -1,0 +1,1302 @@
+{% extends 'base.html' %}
+
+{% block title %}OpenPit | Dashboard{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="ms-dashboard">
+
+    {% if latest %}
+
+    {% set risk = latest.risk_score|float %}
+    {% set confidence = ((online / sensor_total * 100) if sensor_total else 0)|round(0) %}
+
+    {% if risk >= 80 %}
+        {% set risk_class = 'critical' %}
+        {% set risk_text = 'CRITICAL RISK' %}
+    {% elif risk >= 60 %}
+        {% set risk_class = 'high' %}
+        {% set risk_text = 'HIGH RISK' %}
+    {% elif risk >= 35 %}
+        {% set risk_class = 'medium' %}
+        {% set risk_text = 'MEDIUM RISK' %}
+    {% else %}
+        {% set risk_class = 'low' %}
+        {% set risk_text = 'LOW RISK' %}
+    {% endif %}
+
+
+    <!-- =====================================================
+         TOP DASHBOARD BAR
+         ===================================================== -->
+
+    <section class="ms-dashboard-top">
+
+        <div class="ms-dashboard-title">
+            <span class="ms-live-dot"></span>
+            <span>LIVE MONITORING</span>
+        </div>
+
+        <div class="ms-updated">
+            Last updated:
+            {{ latest.timestamp.strftime('%d %b %Y, %H:%M') }}
+        </div>
+
+        <div class="ms-top-actions">
+
+            <a
+                href="{{ url_for('risk_map', mine=selected_mine.id) }}"
+                class="ms-top-button"
+            >
+                Risk Map
+            </a>
+
+            <a
+                href="{{ url_for('alerts') }}"
+                class="ms-notification"
+            >
+                <span class="ms-bell">&#128276;</span>
+                <span>{{ open_alerts }}</span>
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN VISUALIZATION + RISK PANEL
+         ===================================================== -->
+
+    <section class="ms-main-grid">
+
+
+        <!-- =================================================
+             OPEN PIT VISUALIZATION
+             ================================================= -->
+
+        <div class="ms-pit-card">
+
+            <div class="ms-pit-header">
+
+                <div class="ms-pit-heading">
+
+                    <div class="ms-pit-icon">
+                        &#9678;
+                    </div>
+
+                    <div>
+                        <span class="ms-eyebrow">
+                            MINE TOPOGRAPHY
+                        </span>
+
+                        <h2>
+                            {{ selected_mine.name }}
+                        </h2>
+
+                        <p>
+                            Professional topographic visualization
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="ms-map-controls">
+
+                    <button
+                        type="button"
+                        class="ms-map-control active"
+                        id="riskModeButton"
+                    >
+                        &#9888; Risk
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ms-map-control"
+                        id="rotateButton"
+                    >
+                        &#8635; Rotate
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ms-map-control"
+                        id="resetButton"
+                    >
+                        &#8634; Reset
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="ms-pit-stage" id="pitStage">
+
+                <div class="ms-elevation">
+
+                    <strong>Elevation</strong>
+
+                    <div class="ms-elevation-gradient"></div>
+
+                    <div class="ms-elevation-values">
+                        <span>1036m</span>
+                        <span>1215m</span>
+                    </div>
+
+                </div>
+
+
+                <div class="ms-pit-surface open-pit-2d">
+
+    <!-- 2D RISK MAP -->
+    <div class="risk-area risk-low"></div>
+    <div class="risk-area risk-moderate"></div>
+    <div class="risk-area risk-elevated"></div>
+    <div class="risk-area risk-high"></div>
+
+
+    <!-- EXISTING 4 ZONES -->
+    {% set zone_letters = ['A', 'B', 'C', 'D'] %}
+
+    {% for zone_name, zone_reading in zones %}
+
+        <button
+            type="button"
+            class="map-zone
+            {% if loop.index == 2 %}zone-b{% endif %}
+            {% if loop.index == 3 %}zone-c{% endif %}
+            {% if loop.index == 4 %}zone-d{% endif %}
+            {% if zone_reading %}
+                {{ zone_reading.risk_level|lower }}
+            {% endif %}"
+
+            data-zone="{{ zone_name }}"
+            data-letter="{{ zone_letters[loop.index0] }}"
+
+            data-risk="{% if zone_reading %}{{ '%.1f'|format(zone_reading.risk_score|float) }}{% else %}--{% endif %}"
+
+            data-fs="{% if zone_reading %}{{ '%.3f'|format(zone_reading.fs|float) }}{% else %}--{% endif %}"
+
+            data-displacement="{% if zone_reading %}{{ '%.2f'|format(zone_reading.displacement_mm|float) }}{% else %}--{% endif %}"
+
+            data-rainfall="{% if zone_reading %}{{ '%.2f'|format(zone_reading.rainfall_mm|float) }}{% else %}--{% endif %}"
+
+            data-description="{% if zone_reading %}{{ zone_name }} currently has {{ zone_reading.risk_level|lower }} risk. The latest stability score is {{ '%.1f'|format(zone_reading.risk_score|float) }}%, with a factor of safety of {{ '%.3f'|format(zone_reading.fs|float) }} and displacement of {{ '%.2f'|format(zone_reading.displacement_mm|float) }} mm.{% else %}No recent sensor reading is available for {{ zone_name }}.{% endif %}"
+        >
+
+            <span class="zone-dot"></span>
+
+            <span class="zone-name">
+                Zone {{ zone_letters[loop.index0] }}
+            </span>
+
+        </button>
+
+    {% endfor %}
+
+
+    <!-- COMPASS -->
+    <div class="map-compass">
+        <div class="compass-n">N</div>
+
+        <div class="compass-circle">
+            <span class="compass-arrow"></span>
+        </div>
+    </div>
+
+
+    <!-- LEGEND -->
+    <div class="map-legend">
+
+        <div class="legend-title">
+            Risk Level
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot high"></span>
+            High Risk
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot elevated"></span>
+            Elevated Risk
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot moderate"></span>
+            Moderate Risk
+        </div>
+
+        <div class="legend-item">
+            <span class="legend-dot low"></span>
+            Low Risk
+        </div>
+
+    </div>
+
+
+    <!-- HELP -->
+    <div class="map-help">
+        <span>☝</span>
+        Click on any zone to view detailed information
+    </div>
+
+</div>
+    
+       
+   
+        
+                   
+
+                <div class="ms-map-help">
+                    &#9995;
+                    Drag to rotate
+                    <span>•</span>
+                    Scroll to zoom
+                    <span>•</span>
+                    Click zone for details
+                </div>
+
+
+                <button
+                    type="button"
+                    class="ms-fullscreen"
+                    id="fullscreenButton"
+                >
+                    &#x26F6;
+                    Tap for fullscreen
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ROCKFALL PROBABILITY
+             ================================================= -->
+
+        <aside class="ms-risk-panel {{ risk_class }}">
+
+            <div class="ms-risk-header">
+
+                <div class="ms-risk-icon">
+                    &#9888;
+                </div>
+
+                <div>
+                    <span class="ms-eyebrow">
+                        PREDICTIVE SAFETY MODEL
+                    </span>
+
+                    <h2>
+                        ROCKFALL PROBABILITY
+                    </h2>
+
+                    <p>
+                        Last updated:
+                        {{ latest.timestamp.strftime('%H:%M') }}
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="ms-probability">
+
+                <strong>
+                    {{ '%.1f'|format(risk) }}
+                </strong>
+
+                <span>%</span>
+
+            </div>
+
+
+            <div class="ms-risk-pill">
+
+                <span>&#9679;</span>
+
+                {{ risk_text }}
+
+            </div>
+
+
+            <!-- Prediction confidence -->
+
+            <div class="ms-confidence">
+
+                <div class="ms-confidence-title">
+
+                    <span>
+                        &#9641;
+                        Prediction Confidence
+                    </span>
+
+                    <strong>
+                        {% if confidence >= 80 %}
+                            HIGH
+                        {% elif confidence >= 50 %}
+                            MEDIUM
+                        {% else %}
+                            LOW
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+
+                <div class="ms-confidence-track">
+
+                    <span
+                        style="width: {{ confidence }}%"
+                    ></span>
+
+                </div>
+
+
+                <div class="ms-confidence-meta">
+
+                    <span>
+                        {{ confidence }}%
+                    </span>
+
+                    <span>
+                        Active Sensors:
+                        {{ online }}/{{ sensor_total }}
+                    </span>
+
+                </div>
+
+
+                {% if confidence < 70 %}
+
+                <div class="ms-confidence-warning">
+
+                    <span>&#9888;</span>
+
+                    <p>
+                        Manual inspection recommended due to
+                        limited active sensor coverage.
+                    </p>
+
+                </div>
+
+                {% else %}
+
+                <div class="ms-confidence-good">
+
+                    <span>&#10003;</span>
+
+                    <p>
+                        Sensor coverage is sufficient for
+                        automated monitoring.
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- AI explanation -->
+
+            <div class="ms-ai-analysis">
+
+                <div class="ms-ai-title">
+
+                    <span>&#9881;</span>
+
+                    <strong>
+                        Why This Alert? - AI Analysis
+                    </strong>
+
+                </div>
+
+
+                <div class="ms-ai-body">
+
+                    {% if latest_reasons %}
+
+                        {% for reason in latest_reasons[:3] %}
+
+                        <div class="ms-ai-reason">
+
+                            <span>•</span>
+
+                            <p>
+                                {{ reason }}
+                            </p>
+
+                        </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                    <div class="ms-ai-reason">
+
+                        <span>&#10003;</span>
+
+                        <p>
+                            No significant warning factor was
+                            detected in the latest reading.
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('ai', mine=selected_mine.id) }}"
+                class="ms-ai-button"
+            >
+                Open AI Safety Analysis
+                <span>&rarr;</span>
+            </a>
+
+        </aside>
+
+    </section>
+
+
+    <!-- =====================================================
+         OPENPIT_DASHBOARD_MINES_V5
+         ALL MONITORED MINES
+         ===================================================== -->
+
+    <section class="ms-mine-portfolio">
+
+        <div class="ms-section-heading">
+
+            <div>
+                <span class="ms-eyebrow">MINE PORTFOLIO</span>
+
+                <h2>All Monitored Mines</h2>
+
+                <p>
+                    Live monitoring status across all connected mines.
+                </p>
+            </div>
+
+            <span class="ms-mine-count">
+                {{ mine_summaries|length }} mines
+            </span>
+
+        </div>
+
+        <div class="ms-mine-grid">
+
+            {% for mine in mine_summaries %}
+
+                {% set score = mine.risk_score|float %}
+
+                {% if score >= 80 %}
+                    {% set risk_class = 'critical' %}
+                {% elif score >= 60 %}
+                    {% set risk_class = 'high' %}
+                {% elif score >= 35 %}
+                    {% set risk_class = 'medium' %}
+                {% else %}
+                    {% set risk_class = 'low' %}
+                {% endif %}
+
+                <a
+                    href="{{ url_for('dashboard', mine=mine.id) }}"
+                    class="ms-mine-card {{ risk_class }} {% if selected_mine and selected_mine.id == mine.id %}selected{% endif %}"
+                >
+
+                    <div class="ms-mine-card-top">
+
+                        <span class="ms-mine-status-dot"></span>
+
+                        <span>
+                            {{ mine.status }}
+                        </span>
+
+                        {% if mine.open_alerts > 0 %}
+                            <b>
+                                {{ mine.open_alerts }}
+                                alert{{ 's' if mine.open_alerts != 1 else '' }}
+                            </b>
+                        {% endif %}
+
+                    </div>
+
+                    <h3>
+                        {{ mine.name }}
+                    </h3>
+
+                    <p class="ms-mine-location">
+                        {{ mine.location }}
+                    </p>
+
+                    <div class="ms-mine-risk-row">
+
+                        <strong>
+                            {{ '%.1f'|format(mine.risk_score) }}%
+                        </strong>
+
+                        <span>
+                            {{ mine.risk_level }}
+                        </span>
+
+                    </div>
+
+                    <div class="ms-mine-progress">
+
+                        <span
+                            style="width: {{ [mine.risk_score, 100]|min }}%"
+                        ></span>
+
+                    </div>
+
+                    <div class="ms-mine-meta">
+
+                        <span>
+                            {{ mine.online }}/{{ mine.sensor_total }}
+                            sensors online
+                        </span>
+
+                        <span>
+                            Open →
+                        </span>
+
+                    </div>
+
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         24 HOUR TREND
+         ===================================================== -->
+
+    <section class="ms-trend-card">
+
+        <div class="ms-section-heading">
+
+            <div>
+
+                <span class="ms-eyebrow">
+                    RISK HISTORY
+                </span>
+
+                <h2>
+                    24-Hour Probability Trend
+                </h2>
+
+                <p>
+                    Risk score movement across the latest
+                    monitoring readings.
+                </p>
+
+            </div>
+
+            <div class="ms-current-risk">
+
+                <span>Current</span>
+
+                <strong>
+                    {{ '%.1f'|format(risk) }}%
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="ms-chart-wrapper">
+
+            <canvas id="rockfallChart"></canvas>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ZONE MONITORING
+         ===================================================== -->
+
+    <section class="ms-zone-section">
+
+        <div class="ms-section-heading">
+
+            <div>
+
+                <span class="ms-eyebrow">
+                    ZONE MONITORING
+                </span>
+
+                <h2>
+                    Zone Health
+                </h2>
+
+                <p>
+                    Current stability indicators for every
+                    monitored sector.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('risk_map', mine=selected_mine.id) }}"
+                class="ms-outline-button"
+            >
+                Open Risk Map
+                &rarr;
+            </a>
+
+        </div>
+
+
+        <div class="ms-zone-grid">
+
+            {% for name, reading in zones %}
+
+            {% if reading %}
+
+            {% set zone_risk = reading.risk_score|float %}
+
+            {% if zone_risk >= 80 %}
+                {% set zone_class = 'critical' %}
+            {% elif zone_risk >= 60 %}
+                {% set zone_class = 'high' %}
+            {% elif zone_risk >= 35 %}
+                {% set zone_class = 'medium' %}
+            {% else %}
+                {% set zone_class = 'low' %}
+            {% endif %}
+
+
+            <article class="ms-zone-card {{ zone_class }}">
+
+                <div class="ms-zone-card-top">
+
+                    <div>
+
+                        <span class="ms-zone-number">
+                            ZONE {{ loop.index }}
+                        </span>
+
+                        <h3>
+                            {{ name }}
+                        </h3>
+
+                    </div>
+
+                    <span class="ms-zone-level">
+                        {{ reading.risk_level }}
+                    </span>
+
+                </div>
+
+
+                <div class="ms-zone-risk">
+
+                    <strong>
+                        {{ reading.risk_score|round(0) }}
+                    </strong>
+
+                    <span>
+                        / 100
+                    </span>
+
+                </div>
+
+
+                <div class="ms-zone-progress">
+
+                    <span
+                        style="width: {{ reading.risk_score }}%"
+                    ></span>
+
+                </div>
+
+
+                <div class="ms-zone-metrics">
+
+                    <div>
+                        <small>FOS</small>
+                        <strong>
+                            {{ '%.2f'|format(reading.fs) }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>DISPLACEMENT</small>
+                        <strong>
+                            {{ '%.1f'|format(reading.displacement_mm) }}
+                            mm
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>SLOPE</small>
+                        <strong>
+                            {{ '%.1f'|format(reading.slope_angle) }}
+                            deg
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>RAINFALL</small>
+                        <strong>
+                            {{ '%.1f'|format(reading.rainfall_mm) }}
+                            mm
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="ms-zone-footer">
+
+                    <span>
+                        Last reading
+                    </span>
+
+                    <strong>
+                        {{ reading.timestamp.strftime('%H:%M') }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+            {% else %}
+
+            <article class="ms-zone-card empty-zone">
+
+                <div class="ms-zone-card-top">
+
+                    <div>
+
+                        <span class="ms-zone-number">
+                            ZONE {{ loop.index }}
+                        </span>
+
+                        <h3>
+                            {{ name }}
+                        </h3>
+
+                    </div>
+
+                    <span class="ms-zone-level">
+                        NO DATA
+                    </span>
+
+                </div>
+
+                <div class="ms-empty-zone">
+                    No monitoring reading available.
+                </div>
+
+            </article>
+
+            {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ALERTS + SENSOR HEALTH
+         ===================================================== -->
+
+    <section class="ms-bottom-grid">
+
+
+        <div class="ms-alert-card">
+
+            <div class="ms-section-heading compact">
+
+                <div>
+
+                    <span class="ms-eyebrow">
+                        SAFETY EVENTS
+                    </span>
+
+                    <h2>
+                        Recent Alerts
+                    </h2>
+
+                </div>
+
+                <a href="{{ url_for('alerts') }}">
+                    View all &rarr;
+                </a>
+
+            </div>
+
+
+            <div class="ms-alert-list">
+
+                {% for alert in alerts[:5] %}
+
+                <div class="ms-alert-row">
+
+                    <span
+                        class="ms-alert-indicator
+                        {{ alert.severity|lower }}"
+                    ></span>
+
+                    <div class="ms-alert-content">
+
+                        <strong>
+                            {{ alert.title }}
+                        </strong>
+
+                        <span>
+                            {{ alert.zone }}
+                            &bull;
+                            {{ alert.created_at.strftime('%d %b %H:%M') }}
+                        </span>
+
+                    </div>
+
+                    <span
+                        class="ms-alert-badge
+                        {{ alert.severity|lower }}"
+                    >
+                        {{ alert.severity }}
+                    </span>
+
+                </div>
+
+                {% else %}
+
+                <div class="ms-empty">
+                    No recent alerts.
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <div class="ms-sensor-card">
+
+            <div class="ms-section-heading compact">
+
+                <div>
+
+                    <span class="ms-eyebrow">
+                        SENSOR NETWORK
+                    </span>
+
+                    <h2>
+                        Sensor Health
+                    </h2>
+
+                </div>
+
+                <a href="{{ url_for('sensors') }}">
+                    View sensors &rarr;
+                </a>
+
+            </div>
+
+
+            <div class="ms-sensor-number">
+
+                <strong>
+                    {{ online }}
+                </strong>
+
+                <span>
+                    / {{ sensor_total }}
+                    online
+                </span>
+
+            </div>
+
+
+            <div class="ms-sensor-track">
+
+                <span
+                    style="width: {{ confidence }}%"
+                ></span>
+
+            </div>
+
+
+            <div class="ms-sensor-stats">
+
+                <div>
+                    <span class="sensor-online-dot"></span>
+                    Online
+                    <strong>{{ online }}</strong>
+                </div>
+
+                <div>
+                    <span class="sensor-warning-dot"></span>
+                    Warning
+                    <strong>{{ warning_sensors }}</strong>
+                </div>
+
+                <div>
+                    <span class="sensor-critical-dot"></span>
+                    Critical
+                    <strong>{{ critical }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {% else %}
+
+    <section class="ms-empty-dashboard">
+
+        <div class="ms-empty-icon">
+            &#10003;
+        </div>
+
+        <h2>
+            No monitoring data available
+        </h2>
+
+        <p>
+            Select a mine or upload sensor readings to
+            begin monitoring.
+        </p>
+
+    </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+(function () {
+
+    /* ================================================
+       RISK TREND
+       ================================================ */
+
+    const chartElement =
+        document.getElementById('rockfallChart');
+
+    if (chartElement && window.Chart) {
+
+        const labels = [
+            {% for r in readings[-48:] %}
+                {{ r.timestamp.strftime('%H:%M')|tojson }},
+            {% endfor %}
+        ];
+
+        const values = [
+            {% for r in readings[-48:] %}
+                {{ r.risk_score|round(1) }},
+            {% endfor %}
+        ];
+
+        new Chart(chartElement, {
+
+            type: 'line',
+
+            data: {
+
+                labels: labels,
+
+                datasets: [{
+
+                    label: 'Rockfall Probability',
+
+                    data: values,
+
+                    borderColor: '#ef4444',
+
+                    backgroundColor:
+                        'rgba(239,68,68,.10)',
+
+                    borderWidth: 3,
+
+                    fill: true,
+
+                    tension: .38,
+
+                    pointRadius: 2,
+
+                    pointHoverRadius: 6,
+
+                    pointBackgroundColor: '#ffffff',
+
+                    pointBorderWidth: 2,
+
+                    pointBorderColor: '#ef4444'
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function (context) {
+
+                                return (
+                                    ' Risk probability: ' +
+                                    context.parsed.y +
+                                    '%'
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+
+                        min: 0,
+
+                        max: 100,
+
+                        ticks: {
+                            callback: value => value + '%'
+                        },
+
+                        grid: {
+                            color: '#edf1f6'
+                        }
+
+                    },
+
+                    x: {
+
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+                            maxTicksLimit: 10
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* ================================================
+       ZONE MARKERS
+       Clicking a zone focuses the mine visualization.
+       It does NOT scroll to the zone cards.
+       ================================================ */
+
+    const zoneMarkers =
+        document.querySelectorAll('.ms-zone-marker');
+
+    const pitSurface =
+        document.querySelector('.ms-pit-surface');
+
+    zoneMarkers.forEach(function (marker) {
+
+        marker.addEventListener('click', function () {
+
+            const zone =
+                this.dataset.zone;
+
+            /*
+             * Remove previous selection.
+             */
+            zoneMarkers.forEach(function (item) {
+                item.classList.remove('zone-focused');
+            });
+
+            /*
+             * Select clicked marker.
+             */
+            this.classList.add('zone-focused');
+
+            /*
+             * Tell the visualization which zone
+             * should become the focal point.
+             */
+            if (pitSurface) {
+
+                pitSurface.classList.remove(
+                    'focus-zone-a',
+                    'focus-zone-b',
+                    'focus-zone-c',
+                    'focus-zone-d'
+                );
+
+                if (zone === 'North Bench') {
+                    pitSurface.classList.add('focus-zone-a');
+                }
+
+                else if (zone === 'East Wall') {
+                    pitSurface.classList.add('focus-zone-b');
+                }
+
+                else if (zone === 'South Ramp') {
+                    pitSurface.classList.add('focus-zone-c');
+                }
+
+                else if (zone === 'West Bench') {
+                    pitSurface.classList.add('focus-zone-d');
+                }
+
+            }
+
+        });
+
+    });
+
+
+    /* ================================================
+       VISUALIZATION CONTROLS
+       ================================================ */
+
+    const pitStage =
+        document.getElementById('pitStage');
+
+    const rotateButton =
+        document.getElementById('rotateButton');
+
+    const resetButton =
+        document.getElementById('resetButton');
+
+    const fullscreenButton =
+        document.getElementById('fullscreenButton');
+
+
+    if (rotateButton && pitStage) {
+
+        rotateButton.addEventListener(
+            'click',
+            function () {
+
+                pitStage.classList.toggle(
+                    'ms-rotating'
+                );
+
+                this.classList.toggle(
+                    'active'
+                );
+
+            }
+        );
+
+    }
+
+
+    if (resetButton && pitStage) {
+
+        resetButton.addEventListener(
+            'click',
+            function () {
+
+                pitStage.classList.remove(
+                    'ms-rotating'
+                );
+
+                pitStage.classList.remove(
+                    'ms-zoomed'
+                );
+
+                if (rotateButton) {
+
+                    rotateButton.classList.remove(
+                        'active'
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (fullscreenButton && pitStage) {
+
+        fullscreenButton.addEventListener(
+            'click',
+            function () {
+
+                if (
+                    document.fullscreenElement
+                ) {
+
+                    document.exitFullscreen();
+
+                } else if (
+                    pitStage.requestFullscreen
+                ) {
+
+                    pitStage.requestFullscreen();
+
+                }
+
+            }
+        );
+
+    }
+
+
+})();
+
+</script>
+
+{% endblock %}

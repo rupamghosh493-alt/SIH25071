@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Settings{% endblock %}
+{% block heading %}Settings{% endblock %}
+
+{% block content %}
+
+<div class="page-actions settings-header">
+
+    <div>
+        <span class="section-kicker">SYSTEM CONFIGURATION</span>
+        <p>Administrative settings and platform information.</p>
+    </div>
+
+    <span class="admin-only">
+        <span></span> ADMIN ONLY
+    </span>
+
+</div>
+
+
+<div class="settings-layout">
+
+    <!-- PLATFORM CONFIGURATION -->
+
+    <section class="panel settings-panel">
+
+        <div class="settings-panel-head">
+
+            <div class="settings-icon blue">
+                ⚙
+            </div>
+
+            <div>
+                <span class="section-kicker">MONITORING</span>
+                <h2>Platform Preferences</h2>
+                <p>
+                    Current configuration used by the monitoring interface.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-list">
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">◐</span>
+
+                    <div>
+                        <b>Theme</b>
+                        <small>Interface appearance</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value active">
+                    <i></i> Light Theme
+                </span>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">♟</span>
+
+                    <div>
+                        <b>Alert Mode</b>
+                        <small>Dashboard event visibility</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value active">
+                    <i></i> Enabled
+                </span>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">▣</span>
+
+                    <div>
+                        <b>Database</b>
+                        <small>Local persistence layer</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value neutral">
+                    SQLite
+                </span>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">◉</span>
+
+                    <div>
+                        <b>Monitoring</b>
+                        <small>Operational monitoring mode</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value active">
+                    <i></i> 24/7 Active
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SYSTEM INFORMATION -->
+
+    <section class="panel settings-panel">
+
+        <div class="settings-panel-head">
+
+            <div class="settings-icon purple">
+                ⓘ
+            </div>
+
+            <div>
+                <span class="section-kicker">ABOUT</span>
+                <h2>System Information</h2>
+                <p>
+                    Technical information about the MindShield360 platform.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-list">
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">◆</span>
+
+                    <div>
+                        <b>Application</b>
+                        <small>Problem Statement</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value neutral">
+                    PS 25071
+                </span>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">⌘</span>
+
+                    <div>
+                        <b>Backend</b>
+                        <small>Application server</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value neutral">
+                    Python + Flask
+                </span>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">◇</span>
+
+                    <div>
+                        <b>Frontend</b>
+                        <small>Presentation layer</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value neutral">
+                    Jinja2 + CSS + JS
+                </span>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div class="setting-info">
+
+                    <span class="setting-symbol">◈</span>
+
+                    <div>
+                        <b>UI Framework</b>
+                        <small>Component and responsive layer</small>
+                    </div>
+
+                </div>
+
+                <span class="setting-value neutral">
+                    Bootstrap 5
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- SYSTEM STATUS -->
+
+<section class="panel system-status-panel">
+
+    <div class="system-status-copy">
+
+        <div class="system-status-icon">
+            ✓
+        </div>
+
+        <div>
+            <span class="section-kicker">SYSTEM STATUS</span>
+            <h2>Platform Operational</h2>
+            <p>
+                Core monitoring, database persistence and dashboard
+                services are configured for the current prototype.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="system-status-items">
+
+        <div>
+            <span></span>
+            Database
+            <b>Ready</b>
+        </div>
+
+        <div>
+            <span></span>
+            Monitoring
+            <b>Active</b>
+        </div>
+
+        <div>
+            <span></span>
+            Alerts
+            <b>Enabled</b>
+        </div>
+
+    </div>
+
+</section>
+
+
+<div class="settings-disclaimer">
+
+    <span>ⓘ</span>
+
+    <p>
+        These settings are currently informational. Configuration changes
+        should be implemented through the appropriate administrative
+        controls rather than being treated as editable UI values.
+    </p>
+
+</div>
+
+{% endblock %}

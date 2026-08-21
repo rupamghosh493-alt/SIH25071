@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Manage Workers{% endblock %}
+{% block heading %}Manage Workers{% endblock %}
+
+{% block content %}
+
+<div class="page-actions workers-header">
+    <div>
+        <span class="section-kicker">ADMINISTRATION</span>
+        <p>Maintain the mine workforce roster and operational assignments.</p>
+    </div>
+
+    <span class="admin-only">
+        <span></span> ADMIN ONLY
+    </span>
+</div>
+
+
+<div class="workers-layout">
+
+    <!-- WORKFORCE ROSTER -->
+
+    <section class="panel table-panel workers-roster">
+
+        <div class="panel-head">
+
+            <div>
+                <span class="section-kicker">WORKFORCE</span>
+                <h2>Active Worker Roster</h2>
+                <p class="panel-subtitle">
+                    Personnel currently assigned to the selected mine.
+                </p>
+            </div>
+
+            <span class="count-badge">
+                {{ workers|length }}
+                {{ 'worker' if workers|length == 1 else 'workers' }}
+            </span>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table workers-table">
+
+                <thead>
+                    <tr>
+                        <th>Worker</th>
+                        <th>Role</th>
+                        <th>Assigned Zone</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for w in workers %}
+
+                    <tr>
+
+                        <td>
+                            <div class="worker-profile">
+
+                                <span class="worker-avatar">
+                                    {{ w.name[:1]|upper }}
+                                </span>
+
+                                <div>
+                                    <b>{{ w.name }}</b>
+                                    <small>Field personnel</small>
+                                </div>
+
+                            </div>
+                        </td>
+
+
+                        <td>
+                            <span class="worker-role">
+                                {{ w.role }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="worker-zone">
+                                <span>⌖</span>
+                                {{ w.zone }}
+                            </span>
+                        </td>
+
+
+                        <td>
+
+                            <span class="status-chip {{ w.status|lower }}">
+                                <span class="status-dot"></span>
+                                {{ w.status }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="workers-empty"
+                        >
+                            <div>
+                                <strong>No workers found</strong>
+                                <span>
+                                    Add a worker using the form on the right.
+                                </span>
+                            </div>
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- ADD WORKER -->
+
+    <section class="panel add-worker-panel">
+
+        <div class="panel-head">
+
+            <div>
+                <span class="section-kicker">NEW ACCOUNT</span>
+                <h2>Add Worker</h2>
+                <p class="panel-subtitle">
+                    Add a new member to the mine workforce.
+                </p>
+            </div>
+
+            <span class="worker-add-icon">+</span>
+
+        </div>
+
+
+        <form
+            class="worker-form"
+            method="post"
+            id="workerForm"
+        >
+
+            <div class="worker-form-field">
+
+                <label for="workerName">
+                    Worker Name
+                </label>
+
+                <input
+                    id="workerName"
+                    name="name"
+                    type="text"
+                    placeholder="e.g. Amit Sharma"
+                    autocomplete="name"
+                    required
+                    maxlength="100"
+                >
+
+            </div>
+
+
+            <div class="worker-form-field">
+
+                <label for="workerRole">
+                    Role
+                </label>
+
+                <input
+                    id="workerRole"
+                    name="role"
+                    type="text"
+                    placeholder="e.g. Safety Officer"
+                    required
+                    maxlength="100"
+                >
+
+            </div>
+
+
+            <div class="worker-form-field">
+
+                <label for="workerZone">
+                    Assigned Zone
+                </label>
+
+                <input
+                    id="workerZone"
+                    name="zone"
+                    type="text"
+                    placeholder="e.g. East Wall"
+                    required
+                    maxlength="100"
+                >
+
+            </div>
+
+
+            <div class="worker-form-note">
+
+                <span>✓</span>
+
+                <p>
+                    The worker will be added to the current mine's
+                    operational roster.
+                </p>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-cta worker-submit"
+            >
+                Add Worker →
+            </button>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

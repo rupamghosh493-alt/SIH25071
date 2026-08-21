@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Analytics{% endblock %}
+{% block heading %}Analytics & Reports{% endblock %}
+
+{% block content %}
+
+{% set avgfs = (readings|map(attribute='fs')|list|sum / (readings|length)) if readings else 0 %}
+{% set avgrein = (readings|map(attribute='reinforcement')|list|sum / (readings|length)) if readings else 0 %}
+{% set critical_count = readings|selectattr('risk_level','equalto','Critical')|list|length %}
+
+<div class="page-actions analytics-header">
+    <div>
+        <span class="section-kicker">DECISION INTELLIGENCE</span>
+        <p>Trends, model signals and assessment history for mine safety review.</p>
+    </div>
+
+    <a class="small-btn primary" href="{{ url_for('export') }}">
+        ⇩ Export CSV
+    </a>
+</div>
+
+
+<!-- METRICS -->
+
+<div class="analytics-metrics">
+
+    <div class="analytics-metric">
+        <small>Average Factor of Safety</small>
+        <strong>{{ '%.2f'|format(avgfs) }}</strong>
+        <span class="trend up">● Stable</span>
+    </div>
+
+    <div class="analytics-metric">
+        <small>Average Reinforcement</small>
+        <strong>{{ '%.2f'|format(avgrein) }}</strong>
+        <span class="trend">● Monitored</span>
+    </div>
+
+    <div class="analytics-metric">
+        <small>Critical Readings</small>
+        <strong>{{ critical_count }}</strong>
+        <span class="trend danger">● Attention</span>
+    </div>
+
+    <div class="analytics-metric">
+        <small>Total Observations</small>
+        <strong>{{ readings|length }}</strong>
+        <span class="trend">● Recorded</span>
+    </div>
+
+</div>
+
+
+<!-- CHART + SIGNALS -->
+
+<div class="analytics-grid">
+
+    <section class="panel chart-panel">
+
+        <div class="panel-head">
+            <div>
+                <span class="section-kicker">HISTORY</span>
+                <h2>Risk Score Trend</h2>
+                <p class="panel-subtitle">
+                    Historical risk score across recent observations.
+                </p>
+            </div>
+
+            <span class="analytics-live">
+                <span></span> LIVE
+            </span>
+        </div>
+
+        <div class="analytics-chart-wrap">
+
+            {% if readings %}
+
+            <canvas id="history"></canvas>
+
+            {% else %}
+
+            <div class="analytics-empty">
+                <strong>No assessment data</strong>
+                <span>Risk history will appear here when readings are available.</span>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- KEY SIGNALS -->
+
+    <section class="panel signals-panel">
+
+        <div class="panel-head">
+            <div>
+                <span class="section-kicker">PARAMETER HEALTH</span>
+                <h2>Key Signals</h2>
+            </div>
+        </div>
+
+        {% set last = readings[-1] if readings else None %}
+
+        {% if last %}
+
+            {% for name, val, maxv in [
+                ('Factor of Safety', last.fs, 2),
+                ('Reinforcement', last.reinforcement, 1),
+                ('Displacement', last.displacement_mm, 20),
+                ('Rainfall', last.rainfall_mm, 20),
+                ('Slope Angle', last.slope_angle, 80)
+            ] %}
+
+            {% set percentage = ((val / maxv * 100) if maxv else 0) %}
+            {% set percentage = [percentage, 100]|min %}
+            {% set percentage = [percentage, 0]|max %}
+
+            <div class="signal-row">
+
+                <div class="signal-info">
+                    <span>{{ name }}</span>
+                    <b>
+                        {% if name == 'Displacement' or name == 'Rainfall' %}
+                            {{ '%.1f'|format(val) }}
+                        {% else %}
+                            {{ '%.2f'|format(val) }}
+                        {% endif %}
+                    </b>
+                </div>
+
+                <div class="signal-track">
+                    <i style="width: {{ percentage }}%;"></i>
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="analytics-empty small">
+                <strong>No signal data</strong>
+                <span>Latest sensor parameters are unavailable.</span>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<!-- ASSESSMENT TABLE -->
+
+<section class="panel table-panel analytics-table-panel">
+
+    <div class="panel-head">
+
+        <div>
+            <span class="section-kicker">AUDITABLE DATA</span>
+            <h2>Recent Assessment Table</h2>
+            <p class="panel-subtitle">
+                Latest {{ 35 if readings|length > 35 else readings|length }}
+                assessment records.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table analytics-table">
+
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Zone</th>
+                    <th>FS</th>
+                    <th>Displacement</th>
+                    <th>Rainfall</th>
+                    <th>Risk</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for r in readings[-35:]|reverse %}
+
+                <tr>
+
+                    <td>
+                        {{ r.timestamp.strftime('%d %b %H:%M') }}
+                    </td>
+
+                    <td>
+                        <b>{{ r.zone }}</b>
+                    </td>
+
+                    <td>
+                        {{ '%.2f'|format(r.fs) }}
+                    </td>
+
+                    <td>
+                        {{ '%.1f'|format(r.displacement_mm) }} mm
+                    </td>
+
+                    <td>
+                        {{ '%.1f'|format(r.rainfall_mm) }} mm
+                    </td>
+
+                    <td>
+                        <span class="pill {{ r.risk_level|lower }}">
+                            {{ r.risk_level }}
+                        </span>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="6" class="analytics-no-data">
+                        No assessment records available.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+{% if readings %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const canvas = document.getElementById('history');
+
+    if (!canvas || typeof Chart === 'undefined') {
+        return;
+    }
+
+    const labels = [
+        {% for r in readings[-45:] %}
+        "{{ r.timestamp.strftime('%H:%M') }}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const values = [
+        {% for r in readings[-45:] %}
+        {{ r.risk_score|default(0) }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    new Chart(canvas, {
+        type: 'line',
+
+        data: {
+            labels: labels,
+
+            datasets: [{
+                label: 'Risk Score',
+                data: values,
+
+                borderColor: '#0b9f8a',
+                backgroundColor: 'rgba(11,159,138,.10)',
+
+                fill: true,
+                tension: 0.35,
+
+                pointRadius: 2,
+                pointHoverRadius: 5,
+
+                borderWidth: 2
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+
+            plugins: {
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    displayColors: false,
+                    callbacks: {
+                        label: function (context) {
+                            return ' Risk Score: ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100,
+
+                    grid: {
+                        color: '#eef2f6'
+                    },
+
+                    ticks: {
+                        color: '#8b96a7',
+                        font: {
+                            size: 10
+                        }
+                    }
+                },
+
+                x: {
+                    grid: {
+                        display: false
+                    },
+
+                    ticks: {
+                        color: '#8b96a7',
+                        font: {
+                            size: 10
+                        },
+
+                        maxTicksLimit: 10
+                    }
+                }
+            }
+        }
+    });
+
+});
+</script>
+
+{% endif %}
+
+{% endblock %}

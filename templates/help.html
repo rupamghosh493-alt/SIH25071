@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Help{% endblock %}
+{% block heading %}Help & Support{% endblock %}
+
+{% block content %}
+
+<!-- HELP HERO -->
+
+<section class="help-command-hero">
+
+    <div class="help-hero-icon">?</div>
+
+    <div>
+        <span class="section-kicker">SAFETY WORKFLOW</span>
+
+        <h2>How MindShield360 Works</h2>
+
+        <p>
+            Collect signals → assess risk → explain the prediction
+            → surface an alert → take field action.
+        </p>
+    </div>
+
+    <div class="help-flow-status">
+        <span></span>
+        SYSTEM GUIDE
+    </div>
+
+</section>
+
+
+<!-- WORKFLOW -->
+
+<section class="help-workflow">
+
+    <div class="help-section-title">
+        <div>
+            <span class="section-kicker">CORE WORKFLOW</span>
+            <h2>From Sensor to Safety Action</h2>
+        </div>
+
+        <span>01 — 04</span>
+    </div>
+
+
+    <div class="help-workflow-grid">
+
+        <article class="help-step blue">
+
+            <div class="help-step-top">
+                <span>01</span>
+                <b>MONITOR</b>
+            </div>
+
+            <div class="help-step-icon">◉</div>
+
+            <h3>Monitor</h3>
+
+            <p>
+                Review sensor health, mine conditions and
+                recent telemetry from the monitoring network.
+            </p>
+
+        </article>
+
+
+        <article class="help-step orange">
+
+            <div class="help-step-top">
+                <span>02</span>
+                <b>ASSESS</b>
+            </div>
+
+            <div class="help-step-icon">⌁</div>
+
+            <h3>Assess</h3>
+
+            <p>
+                Risk scores combine Factor of Safety and
+                supporting stability and environmental signals.
+            </p>
+
+        </article>
+
+
+        <article class="help-step red">
+
+            <div class="help-step-top">
+                <span>03</span>
+                <b>EXPLAIN</b>
+            </div>
+
+            <div class="help-step-icon">✦</div>
+
+            <h3>Explain</h3>
+
+            <p>
+                AI Safety highlights contributing parameters
+                so users can understand why concern increased.
+            </p>
+
+        </article>
+
+
+        <article class="help-step green">
+
+            <div class="help-step-top">
+                <span>04</span>
+                <b>ACT</b>
+            </div>
+
+            <div class="help-step-icon">✓</div>
+
+            <h3>Act</h3>
+
+            <p>
+                Use alerts, zone views and recommendations
+                to guide inspection and field response.
+            </p>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<!-- FAQ + ACCESS -->
+
+<div class="help-content-grid">
+
+    <!-- FAQ -->
+
+    <section class="panel help-faq-panel">
+
+        <div class="panel-head">
+
+            <div>
+                <span class="section-kicker">FAQ</span>
+                <h2>Frequently Asked Questions</h2>
+            </div>
+
+            <span class="help-faq-count">3 TOPICS</span>
+
+        </div>
+
+
+        <div class="help-faq-list">
+
+            <details open>
+
+                <summary>
+                    <span>01</span>
+                    <b>What is Factor of Safety?</b>
+                    <i>+</i>
+                </summary>
+
+                <p>
+                    Factor of Safety is a stability indicator.
+                    Lower values generally indicate greater concern
+                    and should be reviewed alongside the other
+                    monitored parameters.
+                </p>
+
+            </details>
+
+
+            <details>
+
+                <summary>
+                    <span>02</span>
+                    <b>Can I upload my own data?</b>
+                    <i>+</i>
+                </summary>
+
+                <p>
+                    Yes. Administrators can use Data Ingestion to
+                    upload field observations in CSV format.
+                    The required columns are shown on the Data
+                    Upload page.
+                </p>
+
+            </details>
+
+
+            <details>
+
+                <summary>
+                    <span>03</span>
+                    <b>Is MindShield360 production-ready?</b>
+                    <i>+</i>
+                </summary>
+
+                <p>
+                    No. This application is a prototype intended
+                    for demonstration and hackathon use. Validated
+                    geotechnical models, calibrated sensors and
+                    professional safety procedures are required
+                    before real-world deployment.
+                </p>
+
+            </details>
+
+        </div>
+
+    </section>
+
+
+    <!-- ROLE ACCESS -->
+
+    <section class="panel help-access-panel">
+
+        <div class="panel-head">
+
+            <div>
+                <span class="section-kicker">ROLE ACCESS</span>
+                <h2>Admin vs Worker</h2>
+            </div>
+
+            <span class="access-lock">⌾</span>
+
+        </div>
+
+
+        <div class="access-card admin">
+
+            <div class="access-icon">
+                AD
+            </div>
+
+            <div class="access-copy">
+
+                <strong>Administrator</strong>
+
+                <p>
+                    Full platform and administration access.
+                </p>
+
+                <div class="access-tags">
+
+                    <span>Workers</span>
+                    <span>Data Upload</span>
+                    <span>Settings</span>
+                    <span>Monitoring</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="access-card worker">
+
+            <div class="access-icon">
+                SW
+            </div>
+
+            <div class="access-copy">
+
+                <strong>Safety Worker</strong>
+
+                <p>
+                    Monitoring and operational safety access.
+                </p>
+
+                <div class="access-tags">
+
+                    <span>Dashboard</span>
+                    <span>Risk Map</span>
+                    <span>Alerts</span>
+                    <span>Sensors</span>
+                    <span>Analytics</span>
+                    <span>AI Safety</span>
+                    <span>Scenario</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="help-support-note">
+
+            <span>?</span>
+
+            <div>
+                <strong>Need assistance?</strong>
+                <p>
+                    Use the navigation menu to open the relevant
+                    monitoring or administration section.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- DISCLAIMER -->
+
+<div class="help-disclaimer">
+
+    <span>ⓘ</span>
+
+    <p>
+        MindShield360 is a prototype safety decision-support platform.
+        Its outputs should not replace qualified professional
+        judgement, established mine safety procedures or validated
+        geotechnical assessment.
+    </p>
+
+</div>
+
+{% endblock %}

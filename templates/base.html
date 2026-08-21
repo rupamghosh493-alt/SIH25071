@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}OpenPit{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+
+<body class="{% if current_role %}app-body{% else %}public-body{% endif %}">
+{% if current_role %}
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('dashboard') }}">
+            <span class="openpit-logo"></span>
+            <span>
+                <strong>OpenPit</strong>
+                <small>Mine Safety Platform</small>
+            </span>
+        </a>
+
+        <div class="role-badge">
+            <span class="role-dot"></span>
+            {{ 'Administrator' if current_role == 'admin' else 'Safety Worker' }}
+            <small>Live access</small>
+        </div>
+
+        <nav class="side-nav">
+            <a class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span>▦</span>Dashboard</a>
+            <a class="nav-item {% if request.endpoint == 'risk_map' %}active{% endif %}" href="{{ url_for('risk_map') }}"><span>⌖</span>Risk Map</a>
+            <a class="nav-item {% if request.endpoint in ['alerts','close_alert'] %}active{% endif %}" href="{{ url_for('alerts') }}"><span>♟</span>Alerts</a>
+            <a class="nav-item {% if request.endpoint == 'sensors' %}active{% endif %}" href="{{ url_for('sensors') }}"><span>◉</span>Sensors</a>
+            <a class="nav-item {% if request.endpoint == 'analytics' %}active{% endif %}" href="{{ url_for('analytics') }}"><span>▥</span>Analytics</a>
+            <a class="nav-item {% if request.endpoint == 'mine' %}active{% endif %}" href="{{ url_for('mine') }}"><span>▤</span>Mine Overview</a>
+
+<a class="nav-item" href="https://sih-prototype-chatbot.onrender.com/chatbot">
+    <span>🤖</span>MineSafety_AI
+</a>
+
+<a class="nav-item {% if request.endpoint == 'scenario' %}active{% endif %}" href="{{ url_for('scenario') }}"><span>✦</span>Scenario Lab</a>
+            <a class="nav-item {% if request.endpoint == 'ai' %}active{% endif %}" href="{{ url_for('ai') }}"><span>✧</span>AI Safety</a>
+
+            {% if current_role == 'admin' %}
+            <div class="nav-section">ADMINISTRATION</div>
+            <a class="nav-item {% if request.endpoint == 'workers' %}active{% endif %}" href="{{ url_for('workers') }}"><span>♙</span>Manage Workers</a>
+            <a class="nav-item {% if request.endpoint == 'upload' %}active{% endif %}" href="{{ url_for('upload') }}"><span>⇧</span>Data Upload</a>
+            <a class="nav-item {% if request.endpoint == 'settings' %}active{% endif %}" href="{{ url_for('settings') }}"><span>⚙</span>Settings</a>
+            {% endif %}
+
+            <a class="nav-item {% if request.endpoint == 'help_page' %}active{% endif %}" href="{{ url_for('help_page') }}"><span>?</span>Help & Support</a>
+        </nav>
+
+        <a class="logout-link" href="{{ url_for('logout') }}">↪ Sign out</a>
+    </aside>
+
+    <main class="main-area">
+        <header class="topbar">
+            <div class="topbar-copy">
+                <span class="eyebrow">OPEN-PIT MINE SAFETY PLATFORM</span>
+                <h1>{% block heading %}Dashboard{% endblock %}</h1>
+                <div class="live-line"><span class="live-dot"></span>Live monitoring <span>•</span> {{ now.strftime('%d %b %Y, %H:%M') }}</div>
+            </div>
+
+            <div class="top-actions">
+                <div class="mine-select-wrap">
+                    <button class="mine-select"
+                            type="button"
+                            id="mineSelectorButton"
+                            aria-expanded="false">
+                        <span>⌖ {{ header_mine.name if header_mine else 'No mine selected' }}</span>
+                        <span class="mine-select-arrow">▾</span>
+                    </button>
+
+                    <div class="mine-select-menu" id="mineSelectorMenu" hidden>
+                        {% for mine in header_mines %}
+                        <a class="mine-option {% if header_mine and mine.id == header_mine.id %}selected{% endif %}"
+                           href="{{ request.path }}?mine={{ mine.id }}">
+                            <span class="mine-option-icon">⌖</span>
+
+                            <span class="mine-option-copy">
+                                <strong>{{ mine.name }}</strong>
+                                <small>{{ mine.location or 'Location unavailable' }}</small>
+                            </span>
+
+                            {% if header_mine and mine.id == header_mine.id %}
+                            <b class="mine-option-check">✓</b>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <a class="icon-btn"
+                   href="{{ url_for('alerts') }}"
+                   title="Alerts">
+                    ♟<b>{{ open_alert_count }}</b>
+                </a>
+
+                <a class="avatar"
+                   href="{{ url_for('settings') if current_role == 'admin' else url_for('help_page') }}">
+                    {{ 'AD' if current_role == 'admin' else 'SW' }}
+                </a>
+            </div>
+
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-wrap">
+            {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+{% else %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="public-flash">
+        {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% block public_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

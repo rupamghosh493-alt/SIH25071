@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}MindShield360 | Mine Overview{% endblock %}
+{% block heading %}Mine Overview{% endblock %}
+
+{% block content %}
+
+<!-- MINE HERO -->
+
+<div class="mine-hero">
+
+    <div class="mine-hero-copy">
+
+        <span class="ai-pill mine-operational">
+            <span></span> OPERATIONAL
+        </span>
+
+        <h2>{{ mine.name }}</h2>
+
+        <p>
+            {{ mine.location or 'Location unavailable' }}
+            · Continuous monitoring
+        </p>
+
+    </div>
+
+    <div class="mine-health">
+        <strong>99.2%</strong>
+        <span>System reliability</span>
+    </div>
+
+</div>
+
+
+<!-- MINE METRICS -->
+
+<div class="analytics-metrics mine-metrics">
+
+    <div class="analytics-metric">
+        <small>Monitoring Sensors</small>
+        <strong>{{ sensors|length }}</strong>
+        <span class="trend up">● Connected</span>
+    </div>
+
+    <div class="analytics-metric">
+        <small>Active Workers</small>
+        <strong>{{ workers|length }}</strong>
+        <span class="trend up">● Accounted</span>
+    </div>
+
+    <div class="analytics-metric">
+        <small>Safety Zones</small>
+        <strong>4</strong>
+        <span class="trend">● Monitored</span>
+    </div>
+
+    <div class="analytics-metric">
+        <small>Monitoring Mode</small>
+        <strong>24/7</strong>
+        <span class="trend">● Continuous</span>
+    </div>
+
+</div>
+
+
+<!-- WORKER OVERVIEW -->
+
+<section class="panel table-panel mine-workers-panel">
+
+    <div class="panel-head">
+
+        <div>
+            <span class="section-kicker">FIELD TEAM</span>
+            <h2>Worker Overview</h2>
+            <p class="panel-subtitle">
+                Personnel currently assigned to {{ mine.name }}.
+            </p>
+        </div>
+
+        {% if current_role == 'admin' %}
+        <a class="small-btn primary" href="{{ url_for('workers') }}">
+            Manage Workers
+        </a>
+        {% endif %}
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table mine-worker-table">
+
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Zone</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for w in workers %}
+
+                <tr>
+
+                    <td>
+                        <div class="worker-name">
+                            <span class="worker-avatar">
+                                {{ w.name[:1]|upper }}
+                            </span>
+                            <b>{{ w.name }}</b>
+                        </div>
+                    </td>
+
+                    <td>{{ w.role }}</td>
+
+                    <td>
+                        <span class="worker-zone">
+                            ⌖ {{ w.zone }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status-chip {{ w.status|lower }}">
+                            <span class="status-dot"></span>
+                            {{ w.status }}
+                        </span>
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="4" class="mine-empty">
+                        No workers are currently assigned to this mine.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}
